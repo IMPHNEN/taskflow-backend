@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class GitHubCodeExchange(BaseModel):
     code: str
+    code_verifier: str | None = None
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
@@ -25,8 +26,12 @@ async def github_login():
                 "skip_http_redirect": True  # Return URL instead of redirecting
             }
         })
+        code_verifier = supabase.auth._storage.get_item(
+            f"{supabase.auth._storage_key}-code-verifier"
+        )
         return {
             "url": auth_url.url,
+            "code_verifier": code_verifier
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -38,7 +43,7 @@ async def exchange_github_code(body: GitHubCodeExchange):
         # Exchange code for session
         auth_response = supabase.auth.exchange_code_for_session({
             "auth_code": body.code,
-            "code_verifier": None
+            "code_verifier": body.code_verifier
         })
         
         # Get user data including provider token (GitHub access token)
