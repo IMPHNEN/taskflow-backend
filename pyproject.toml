@@ -1,0 +1,17 @@
+[project]
+name = "taskflow-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "agno>=1.4.2",
+    "duckduckgo-search>=8.0.1",
+    "firecrawl-py>=2.5.4",
+    "google-genai>=1.14.0",
+    "lxml-html-clean>=0.4.2",
+    "newspaper4k>=0.9.3.1",
+    "openai>=1.76.2",
+    "python-dotenv>=1.1.0",
+    "tavily-python>=0.7.2",
+]
