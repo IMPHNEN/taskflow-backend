@@ -9,3 +9,6 @@ mem0ai==0.1.97
 groq==0.24.0
 vecs==0.4.5
 google_generativeai==0.8.5
+google_genai==1.14.0
+tavily_python==0.7.2
+firecrawl==2.5.4
