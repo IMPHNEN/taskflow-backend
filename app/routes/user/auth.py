@@ -24,7 +24,8 @@ async def github_login():
         "provider": "github",
         "options": {
             "redirect_to": f"{FRONTEND_URL}/auth/callback",
-            "skip_http_redirect": True  # Return URL instead of redirecting
+            "skip_http_redirect": True,  # Return URL instead of redirecting
+            "scopes": "user:email read:user openid repo admin:repo_hook"
         }
     })
     code_verifier = supabase.auth._storage.get_item(
