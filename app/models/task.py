@@ -20,6 +20,7 @@ class TaskBase(BaseModel):
     task_type: TaskType
     status: TaskStatus = TaskStatus.backlog
     position: int = Field(..., gt=0)
+    story_point: int = Field(..., gt=0)
     parent_id: Optional[UUID4] = None
 
 class TaskCreate(TaskBase):
@@ -31,6 +32,7 @@ class TaskUpdate(TaskBase):
     task_type: Optional[TaskType] = None
     status: Optional[TaskStatus] = None
     position: Optional[int] = Field(None, gt=0)
+    story_point: Optional[int] = Field(None, gt=0)
     parent_id: Optional[UUID4] = None
 
 class TaskInDB(TaskBase):
