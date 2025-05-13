@@ -5,11 +5,11 @@ from decimal import Decimal
 
 class ProjectBase(BaseModel):
     name: str = Field(..., max_length=100)
-    objective: str
-    estimated_income: Optional[Decimal] = None
-    estimated_outcome: Optional[Decimal] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    objective: str = Field(..., max_length=255)
+    estimated_income: Decimal = Field(..., ge=0)
+    estimated_outcome: Decimal = Field(..., ge=0)
+    start_date: date
+    end_date: date
     github_url: Optional[str] = Field(None, max_length=255)
 
 class ProjectCreate(ProjectBase):
