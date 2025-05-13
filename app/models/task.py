@@ -32,7 +32,7 @@ class TaskUpdate(TaskBase):
     task_type: Optional[TaskType] = None
     status: Optional[TaskStatus] = None
     position: Optional[int] = Field(None, gt=0)
-    story_point: Optional[int] = Field(None, gt=0)
+    story_point: Optional[int] = Field(None, ge=0)
     parent_id: Optional[UUID4] = None
 
 class TaskInDB(TaskBase):
