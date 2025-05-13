@@ -18,6 +18,10 @@ class ProjectCreate(ProjectBase):
 class ProjectUpdate(ProjectBase):
     name: Optional[str] = Field(None, max_length=100)
     objective: Optional[str] = None
+    estimated_income: Optional[Decimal] = Field(None, ge=0)
+    estimated_outcome: Optional[Decimal] = Field(None, ge=0)
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 class ProjectInDB(ProjectBase):
     id: UUID4
