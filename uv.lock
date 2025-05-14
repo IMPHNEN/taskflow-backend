@@ -8,8 +8,8 @@ resolution-markers = [
 
 [[package]]
 name = "agno"
-version = "1.4.5"
-source = { registry = "https://pypi.org/simple" }
+version = "1.5.0"
+source = { git = "https://github.com/saikanov/agno.git?subdirectory=libs%2Fagno&rev=main#1675bb7e01ae31f3b067aeb82bcd8f1023418d5d" }
 dependencies = [
     { name = "docstring-parser" },
     { name = "gitpython" },
@@ -23,10 +23,6 @@ dependencies = [
     { name = "tomli" },
     { name = "typer" },
     { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/0a/56eb1706a35d41fe17398e706224781ee94462e2ae3d192a60c434bfd98c/agno-1.4.5.tar.gz", hash = "sha256:f8b15f629817f0fee7518734fc375ec4bf362a902c7e45e965fbf476e676777a", size = 533691 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/67/d10af6f66ad2a4fe2037de01f84a8cf40bb7fe423cee519cbf9a836491de/agno-1.4.5-py3-none-any.whl", hash = "sha256:930f651728d516d46f4c3c5b05b7d565df5374c32ed6d33a24ea69faf1a200bb", size = 699955 },
 ]
 
 [[package]]
@@ -321,11 +317,14 @@ wheels = [
 
 [[package]]
 name = "exceptiongroup"
-version = "1.2.2"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/09/35/2495c4ac46b980e4ca1f6ad6db102322ef3ad2410b79fdde159a4b0f3b92/exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc", size = 28883 }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/cc/b7e31358aac6ed1ef2bb790a9746ac2c69bcb3c8588b41616914eb106eaf/exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b", size = 16453 },
+    { url = "https://files.pythonhosted.org/packages/36/f4/c6e662dade71f56cd2f3735141b265c3c79293c109549c1e6933b0651ffc/exceptiongroup-1.3.0-py3-none-any.whl", hash = "sha256:4d111e6e0c13d0644cad6ddaa7ed0261a0b36971f6d23e7ec9b4b9097da78a10", size = 16674 },
 ]
 
 [[package]]
@@ -350,7 +349,7 @@ wheels = [
 ]
 
 [[package]]
-name = "firecrawl-py"
+name = "firecrawl"
 version = "2.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
@@ -361,9 +360,9 @@ dependencies = [
     { name = "requests" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/96/5c/c180370ee11c890ee08d2485cfcfa0df633c36a227fbb0e5085ebe1d699d/firecrawl_py-2.5.4.tar.gz", hash = "sha256:0985b6d3a3798fe52b384ae531126f9ccd15d0ad8206570b44cfb46ee1fc1ff3", size = 37708 }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/c0/a4a770630d1e34301f7a5bbca394413a0684c2092fd65c040a2189f17b5f/firecrawl-2.5.4.tar.gz", hash = "sha256:3b2029f241cdc46043a0f13a2ebbbe83915f29fab0a145c1b2d697b9a481286c", size = 37690 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/8f/245f515eeea93ad0fb568efb2bcd7b45a12251c5ade4740ddb8dc2fae776/firecrawl_py-2.5.4-py3-none-any.whl", hash = "sha256:ca6d0f1b85a375e15630dee9f8fd7d58ae15341189f1049c0f6426576641610b", size = 205970 },
+    { url = "https://files.pythonhosted.org/packages/5a/66/708e54f225d83e1561526436b7890e61b2934065d24d37a8318c6b633214/firecrawl-2.5.4-py3-none-any.whl", hash = "sha256:2d6a57e3a94df5193fe2be172be54c21930d6b2f0920faf4d5a9d87ab9923779", size = 240021 },
 ]
 
 [[package]]
@@ -500,7 +499,7 @@ wheels = [
 
 [[package]]
 name = "google-genai"
-version = "1.14.0"
+version = "1.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -511,9 +510,26 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/ba/c8e4c0b60c6dda40e51e2125709d097c2609fce1389b4a05f40cdd51c1ec/google_genai-1.14.0.tar.gz", hash = "sha256:7c608de5bb173486a546f5ec4562255c26bae72d33d758a3207bb26f695d0087", size = 169938 }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/19/da5a085ce419c33b9e6ae308005efad9bfa1b10f59f449d075bba1f16a64/google_genai-1.15.0.tar.gz", hash = "sha256:118bb26960d6343cd64f1aeb5c2b02144a36ad06716d0d1eb1fa3e0904db51f1", size = 173452 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/86/dde4cd028c8b0716b3f1f6d202647396a87a4ecbbdc7e4beb59b9d9284d3/google_genai-1.14.0-py3-none-any.whl", hash = "sha256:5916ee985bf69ac7b68c4488949225db71e21579afc7ba5ecd5321173b60d3b2", size = 168862 },
+    { url = "https://files.pythonhosted.org/packages/6f/e2/acc99d36fd439fb2e558c7aebd049329dbfc08a094faf17d847d393e2810/google_genai-1.15.0-py3-none-any.whl", hash = "sha256:6d7f149cc735038b680722bed495004720514c234e2a445ab2f27967955071dd", size = 171278 },
+]
+
+[[package]]
+name = "groq"
+version = "0.24.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c8/23/d71f076e9fd5f4f8989387c0bca3b5fd02c5eaa17f8fe0777fe0940d2d80/groq-0.24.0.tar.gz", hash = "sha256:e821559de8a77fb81d2585b3faec80ff923d6d64fd52339b33f6c94997d6f7f5", size = 125654 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/f0/faa2a007981d74c3e0fe141d07e4ed43b95fed00d3b8489696602b51119d/groq-0.24.0-py3-none-any.whl", hash = "sha256:0020e6b0b2b267263c9eb7c318deef13c12f399c6525734200b11d777b00088e", size = 127536 },
 ]
 
 [[package]]
@@ -922,7 +938,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.78.0"
+version = "1.76.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -934,9 +950,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d1/7c/7c48bac9be52680e41e99ae7649d5da3a0184cd94081e028897f9005aa03/openai-1.78.0.tar.gz", hash = "sha256:254aef4980688468e96cbddb1f348ed01d274d02c64c6c69b0334bf001fb62b3", size = 442652 }
+sdist = { url = "https://files.pythonhosted.org/packages/84/51/817969ec969b73d8ddad085670ecd8a45ef1af1811d8c3b8a177ca4d1309/openai-1.76.0.tar.gz", hash = "sha256:fd2bfaf4608f48102d6b74f9e11c5ecaa058b60dad9c36e409c12477dfd91fb2", size = 434660 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/41/d64a6c56d0ec886b834caff7a07fc4d43e1987895594b144757e7a6b90d7/openai-1.78.0-py3-none-any.whl", hash = "sha256:1ade6a48cd323ad8a7715e7e1669bb97a17e1a5b8a916644261aaef4bf284778", size = 680407 },
+    { url = "https://files.pythonhosted.org/packages/59/aa/84e02ab500ca871eb8f62784426963a1c7c17a72fea3c7f268af4bbaafa5/openai-1.76.0-py3-none-any.whl", hash = "sha256:a712b50e78cf78e6d7b2a8f69c4978243517c2c36999756673e07a14ce37dc0a", size = 661201 },
 ]
 
 [[package]]
@@ -1578,8 +1594,9 @@ source = { virtual = "." }
 dependencies = [
     { name = "agno" },
     { name = "duckduckgo-search" },
-    { name = "firecrawl-py" },
+    { name = "firecrawl" },
     { name = "google-genai" },
+    { name = "groq" },
     { name = "lxml-html-clean" },
     { name = "newspaper4k" },
     { name = "openai" },
@@ -1589,13 +1606,14 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agno", specifier = ">=1.4.2" },
+    { name = "agno", git = "https://github.com/saikanov/agno.git?subdirectory=libs%2Fagno&rev=main" },
     { name = "duckduckgo-search", specifier = ">=8.0.1" },
-    { name = "firecrawl-py", specifier = ">=2.5.4" },
+    { name = "firecrawl", specifier = ">=2.5.4" },
     { name = "google-genai", specifier = ">=1.14.0" },
+    { name = "groq", specifier = ">=0.24.0" },
     { name = "lxml-html-clean", specifier = ">=0.4.2" },
     { name = "newspaper4k", specifier = ">=0.9.3.1" },
-    { name = "openai", specifier = ">=1.76.2" },
+    { name = "openai", specifier = "==1.76.0" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "tavily-python", specifier = ">=0.7.2" },
 ]
@@ -1718,7 +1736,7 @@ wheels = [
 
 [[package]]
 name = "typer"
-version = "0.15.3"
+version = "0.15.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1726,9 +1744,9 @@ dependencies = [
     { name = "shellingham" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/98/1a/5f36851f439884bcfe8539f6a20ff7516e7b60f319bbaf69a90dc35cc2eb/typer-0.15.3.tar.gz", hash = "sha256:818873625d0569653438316567861899f7e9972f2e6e0c16dab608345ced713c", size = 101641 }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/89/c527e6c848739be8ceb5c44eb8208c52ea3515c6cf6406aa61932887bf58/typer-0.15.4.tar.gz", hash = "sha256:89507b104f9b6a0730354f27c39fae5b63ccd0c95b1ce1f1a6ba0cfd329997c3", size = 101559 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/20/9d953de6f4367163d23ec823200eb3ecb0050a2609691e512c8b95827a9b/typer-0.15.3-py3-none-any.whl", hash = "sha256:c86a65ad77ca531f03de08d1b9cb67cd09ad02ddddf4b34745b5008f43b239bd", size = 45253 },
+    { url = "https://files.pythonhosted.org/packages/c9/62/d4ba7afe2096d5659ec3db8b15d8665bdcb92a3c6ff0b95e99895b335a9c/typer-0.15.4-py3-none-any.whl", hash = "sha256:eb0651654dcdea706780c466cf06d8f174405a659ffff8f163cfbfee98c0e173", size = 45258 },
 ]
 
 [[package]]
