@@ -1,0 +1,6 @@
+git clone https://github.com/github/github-mcp-server.git github-mcp-server-git
+cd github-mcp-server-git
+go mod download
+cd cmd/github-mcp-server
+go build
+# place built binary on the path (e.g. /usr/local/bin for Linux)
