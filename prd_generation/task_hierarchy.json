@@ -1,202 +1,229 @@
 {
-  "epics": [
+  "items": [
     {
-      "title": "User Management Epic",
-      "features": [
-        {
-          "title": "User Registration Feature",
-          "tasks": [
-            {
-              "id": "task_001",
-              "title": "Design User Registration Flow",
-              "description": "Design a user-friendly registration flow with email and social media account options.",
-              "estimated_hours": 4,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_002",
-              "title": "Implement User Registration API",
-              "description": "Develop a RESTful API for user registration with email and social media account options.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_001"
-              ]
-            },
-            {
-              "id": "task_003",
-              "title": "Develop User Registration Frontend",
-              "description": "Create a user-friendly frontend for user registration with validation and error handling.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_002"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "User Login Feature",
-          "tasks": [
-            {
-              "id": "task_004",
-              "title": "Design User Login Flow",
-              "description": "Design a user-friendly login flow with email and social media account options.",
-              "estimated_hours": 4,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_005",
-              "title": "Implement User Login API",
-              "description": "Develop a RESTful API for user login with email and social media account options.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_004"
-              ]
-            },
-            {
-              "id": "task_006",
-              "title": "Develop User Login Frontend",
-              "description": "Create a user-friendly frontend for user login with validation and error handling.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_005"
-              ]
-            }
-          ]
-        }
-      ]
+      "id": "epic_1",
+      "title": "User Management",
+      "description": "User registration, login, and profile management",
+      "task_type": "epic",
+      "status": "open",
+      "position": 1,
+      "parent_id": null
     },
     {
-      "title": "Chatbot Interface Epic",
-      "features": [
-        {
-          "title": "Health Information Retrieval Feature",
-          "tasks": [
-            {
-              "id": "task_007",
-              "title": "Design Chatbot Conversation Flow",
-              "description": "Design a conversational flow for the chatbot to retrieve and provide relevant health information.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_008",
-              "title": "Implement Chatbot API",
-              "description": "Develop a RESTful API for the chatbot to retrieve and provide relevant health information.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": [
-                "task_007"
-              ]
-            },
-            {
-              "id": "task_009",
-              "title": "Develop Chatbot Frontend",
-              "description": "Create a user-friendly frontend for the chatbot with conversational interface and feedback mechanisms.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": [
-                "task_008"
-              ]
-            }
-          ]
-        }
-      ]
+      "id": "feature_1",
+      "title": "User Registration",
+      "description": "Users can register using email or social media accounts",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_1"
     },
     {
-      "title": "Health Tracking Epic",
-      "features": [
-        {
-          "title": "Health Metrics Tracking Feature",
-          "tasks": [
-            {
-              "id": "task_010",
-              "title": "Design Health Metrics Tracking Flow",
-              "description": "Design a user-friendly flow for tracking health metrics with goals and reminders.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": []
-            },
-            {
-              "id": "task_011",
-              "title": "Implement Health Metrics Tracking API",
-              "description": "Develop a RESTful API for tracking health metrics with goals and reminders.",
-              "estimated_hours": 12,
-              "priority": "medium",
-              "dependencies": [
-                "task_010"
-              ]
-            },
-            {
-              "id": "task_012",
-              "title": "Develop Health Metrics Tracking Frontend",
-              "description": "Create a user-friendly frontend for tracking health metrics with visualization and insights.",
-              "estimated_hours": 16,
-              "priority": "medium",
-              "dependencies": [
-                "task_011"
-              ]
-            }
-          ]
-        }
-      ]
+      "id": "task_1",
+      "title": "Implement user registration with email",
+      "description": "Allow users to register with their email address",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_1"
     },
     {
-      "title": "Security and Performance Epic",
-      "features": [
-        {
-          "title": "Security Feature",
-          "tasks": [
-            {
-              "id": "task_013",
-              "title": "Implement Security Measures",
-              "description": "Implement security measures such as encryption, authentication, and access control.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_014",
-              "title": "Conduct Security Testing",
-              "description": "Conduct security testing and vulnerability assessment.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_013"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Performance Optimization Feature",
-          "tasks": [
-            {
-              "id": "task_015",
-              "title": "Optimize Database Queries",
-              "description": "Optimize database queries for better performance.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": []
-            },
-            {
-              "id": "task_016",
-              "title": "Implement Caching Mechanisms",
-              "description": "Implement caching mechanisms for frequently accessed data.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": [
-                "task_015"
-              ]
-            }
-          ]
-        }
-      ]
+      "id": "task_2",
+      "title": "Implement user registration with social media",
+      "description": "Allow users to register with their social media accounts",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_1"
+    },
+    {
+      "id": "feature_2",
+      "title": "User Login",
+      "description": "Users can login with their email or social media accounts",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_1"
+    },
+    {
+      "id": "task_3",
+      "title": "Implement user login with email",
+      "description": "Allow users to login with their email address",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_2"
+    },
+    {
+      "id": "task_4",
+      "title": "Implement user login with social media",
+      "description": "Allow users to login with their social media accounts",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_2"
+    },
+    {
+      "id": "feature_3",
+      "title": "Profile Management",
+      "description": "Users can manage their profile information",
+      "task_type": "feature",
+      "status": "open",
+      "position": 3,
+      "parent_id": "epic_1"
+    },
+    {
+      "id": "task_5",
+      "title": "Implement profile editing",
+      "description": "Allow users to edit their profile information",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_3"
+    },
+    {
+      "id": "task_6",
+      "title": "Implement profile viewing",
+      "description": "Allow users to view their profile information",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_3"
+    },
+    {
+      "id": "epic_2",
+      "title": "Chatbot Interface",
+      "description": "Chatbot for health information retrieval and symptom checking",
+      "task_type": "epic",
+      "status": "open",
+      "position": 2,
+      "parent_id": null
+    },
+    {
+      "id": "feature_4",
+      "title": "Health Information Retrieval",
+      "description": "Chatbot can retrieve and provide relevant health information",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_2"
+    },
+    {
+      "id": "task_7",
+      "title": "Implement health information retrieval",
+      "description": "Allow chatbot to retrieve and provide relevant health information",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_4"
+    },
+    {
+      "id": "feature_5",
+      "title": "Symptom Checker",
+      "description": "Chatbot can help users identify potential health issues",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_2"
+    },
+    {
+      "id": "task_8",
+      "title": "Implement symptom checker",
+      "description": "Allow chatbot to help users identify potential health issues",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_5"
+    },
+    {
+      "id": "epic_3",
+      "title": "Health Tracking",
+      "description": "Users can track their health metrics and progress over time",
+      "task_type": "epic",
+      "status": "open",
+      "position": 3,
+      "parent_id": null
+    },
+    {
+      "id": "feature_6",
+      "title": "Health Metrics Tracking",
+      "description": "Users can track various health metrics",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_3"
+    },
+    {
+      "id": "task_9",
+      "title": "Implement health metrics tracking",
+      "description": "Allow users to track various health metrics",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_6"
+    },
+    {
+      "id": "feature_7",
+      "title": "Wearable Integration",
+      "description": "Optional integration with wearables for enhanced health tracking",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_3"
+    },
+    {
+      "id": "task_10",
+      "title": "Implement wearable integration",
+      "description": "Allow integration with wearables for enhanced health tracking",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_7"
+    },
+    {
+      "id": "epic_4",
+      "title": "Notifications and Reminders",
+      "description": "System sends notifications for important health reminders",
+      "task_type": "epic",
+      "status": "open",
+      "position": 4,
+      "parent_id": null
+    },
+    {
+      "id": "feature_8",
+      "title": "Push Notifications",
+      "description": "System sends push notifications for important health reminders",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_4"
+    },
+    {
+      "id": "task_11",
+      "title": "Implement push notifications",
+      "description": "Allow system to send push notifications for important health reminders",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_8"
+    },
+    {
+      "id": "feature_9",
+      "title": "In-App Notifications",
+      "description": "System provides in-app notifications for health updates and reminders",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_4"
+    },
+    {
+      "id": "task_12",
+      "title": "Implement in-app notifications",
+      "description": "Allow system to provide in-app notifications for health updates and reminders",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_9"
     }
   ]
 }
