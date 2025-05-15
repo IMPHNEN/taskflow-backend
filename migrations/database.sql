@@ -82,10 +82,14 @@ CREATE TABLE activity_logs (
 );
 
 -- Indexes
-CREATE INDEX idx_tasks_project_id ON tasks(project_id);
-CREATE INDEX idx_tasks_parent_id ON tasks(parent_id);
 CREATE INDEX idx_activity_logs_project_id ON activity_logs(project_id);
 CREATE INDEX idx_market_research_project_id ON market_research(project_id);
+-- Add tasks indexes for better performance
+CREATE INDEX idx_tasks_project_id ON tasks(project_id);
+CREATE INDEX idx_tasks_parent_id ON tasks(parent_id);
+CREATE INDEX idx_tasks_project_parent_pos ON tasks(project_id, parent_id, position);
+CREATE INDEX idx_tasks_parent_pos ON tasks(parent_id, position);
+CREATE INDEX idx_tasks_proj_parent_pos ON tasks(project_id, COALESCE(parent_id, uuid_nil()), position);
 
 -- Update timestamp trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -112,6 +116,132 @@ CREATE OR REPLACE TRIGGER update_market_research_modtime
     FOR EACH ROW
     EXECUTE PROCEDURE update_updated_at_column();
 
+-- Optimized function to adjust task positions
+CREATE OR REPLACE FUNCTION adjust_task_positions()
+RETURNS TRIGGER AS $$
+DECLARE
+    max_position INTEGER;
+    parent_key   UUID := COALESCE(NEW.parent_id, uuid_nil());
+BEGIN
+    -- Prevent recursive trigger loops
+    IF pg_trigger_depth() > 1 THEN
+        RETURN NEW;
+    END IF;
+
+    -- Find current max position among siblings
+    SELECT COALESCE(MAX(position), 0)
+        INTO max_position
+        FROM tasks
+        WHERE project_id = NEW.project_id
+        AND COALESCE(parent_id, uuid_nil()) = parent_key;
+
+    -- Assign or shift
+    IF NEW.position IS NULL 
+        OR NEW.position > max_position + 1 THEN
+        NEW.position := max_position + 1;
+    ELSE
+        NEW.position := GREATEST(1, NEW.position);
+        UPDATE tasks
+            SET position = position + 1
+            WHERE project_id = NEW.project_id
+            AND COALESCE(parent_id, uuid_nil()) = parent_key
+            AND position >= NEW.position;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Function: handle_task_position_update()
+CREATE OR REPLACE FUNCTION handle_task_position_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    old_pos       INTEGER := OLD.position;
+    new_pos       INTEGER;
+    max_position  INTEGER;
+    old_parent    UUID := COALESCE(OLD.parent_id, uuid_nil());
+    new_parent    UUID := COALESCE(NEW.parent_id, uuid_nil());
+BEGIN
+    -- Prevent recursive trigger loops
+    IF pg_trigger_depth() > 1 THEN
+        RETURN NEW;
+    END IF;
+
+    -- No-op if nothing meaningful changed
+    IF old_pos = NEW.position
+        AND old_parent = new_parent THEN
+        RETURN NEW;
+    END IF;
+
+    -- Bound new_pos into [1..max+1]
+    SELECT COALESCE(MAX(position), 0)
+        INTO max_position
+        FROM tasks
+        WHERE project_id = NEW.project_id
+        AND COALESCE(parent_id, uuid_nil()) = new_parent
+        AND id <> NEW.id;
+
+    new_pos := LEAST(GREATEST(1, NEW.position), max_position + 1);
+
+    IF old_parent = new_parent THEN
+        -- Reordering within same bucket
+        IF new_pos > old_pos THEN
+            UPDATE tasks
+                SET position = position - 1
+                WHERE project_id = NEW.project_id
+                AND COALESCE(parent_id, uuid_nil()) = new_parent
+                AND position > old_pos
+                AND position <= new_pos
+                AND id <> NEW.id;
+        ELSE
+            UPDATE tasks
+                SET position = position + 1
+                WHERE project_id = NEW.project_id
+                AND COALESCE(parent_id, uuid_nil()) = new_parent
+                AND position >= new_pos
+                AND position < old_pos
+                AND id <> NEW.id;
+        END IF;
+    ELSE
+        -- Moving between buckets: close old gap…
+        UPDATE tasks
+            SET position = position - 1
+            WHERE project_id = NEW.project_id
+            AND COALESCE(parent_id, uuid_nil()) = old_parent
+            AND position > old_pos;
+
+        -- …and open new slot
+        UPDATE tasks
+            SET position = position + 1
+            WHERE project_id = NEW.project_id
+            AND COALESCE(parent_id, uuid_nil()) = new_parent
+            AND position >= new_pos
+            AND id <> NEW.id;
+    END IF;
+
+    NEW.position := new_pos;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Recreate triggers before_task_insert, before_task_position_update
+DROP TRIGGER IF EXISTS before_task_insert ON tasks;
+CREATE TRIGGER before_task_insert
+    BEFORE INSERT ON tasks
+    FOR EACH ROW
+    EXECUTE FUNCTION adjust_task_positions();
+
+DROP TRIGGER IF EXISTS before_task_position_update ON tasks;
+CREATE TRIGGER before_task_position_update
+    BEFORE UPDATE OF position, parent_id ON tasks
+    FOR EACH ROW
+    WHEN (
+        (OLD.position IS DISTINCT FROM NEW.position)
+        OR (OLD.parent_id IS DISTINCT FROM NEW.parent_id)
+    )
+    EXECUTE FUNCTION handle_task_position_update();
 
 -- inserts a row into public.users
 create or replace function public.handle_new_user()
