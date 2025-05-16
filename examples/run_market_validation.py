@@ -89,7 +89,7 @@ async def main():
         print(f"Time Taken: {result.get('time_taken_seconds', 0):.2f} seconds")
         
         # Print the first 200 characters as preview
-        preview = result['content'][:200] + "..." if len(result['report']) > 200 else result['report']
+        preview = result['content'][:200] + "..." if len(result['content']) > 200 else result['content']
         print(f"\nPreview:\n{preview}")
     else:
         print("\n❌ MARKET VALIDATION FAILED")
