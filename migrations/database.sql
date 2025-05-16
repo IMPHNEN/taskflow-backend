@@ -2,6 +2,7 @@
 CREATE TYPE user_role AS ENUM ('user', 'admin', 'super');
 CREATE TYPE task_type AS ENUM ('epic', 'feature', 'task');
 CREATE TYPE task_status AS ENUM ('backlog', 'todo', 'in_progress', 'done');
+CREATE TYPE ai_generation_status AS ENUM ('not_started','in_progress', 'completed', 'failed');
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -24,14 +25,13 @@ CREATE TABLE public.users (
 -- Projects table
 CREATE TABLE projects (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) NOT NULL ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     objective TEXT NOT NULL,
     estimated_income DECIMAL(12,2) NOT NULL,
     estimated_outcome DECIMAL(12,2) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    github_url VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -39,7 +39,7 @@ CREATE TABLE projects (
 -- Tasks table (hierarchical structure)
 CREATE TABLE tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE,
     parent_id UUID REFERENCES tasks(id), -- self-relationship for sub-tasks -- mvp belum dipake
     title VARCHAR(200) NOT NULL,
     description TEXT,
@@ -51,22 +51,45 @@ CREATE TABLE tasks (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Market Research table
-CREATE TABLE market_research (
+-- PRD table
+CREATE TABLE prd (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-    report_markdown TEXT,
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE UNIQUE,
+    prd_markdown TEXT,
+    status ai_generation_status DEFAULT 'not_started',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Mockups table
-CREATE TABLE mockups (
+-- Github Setup table
+CREATE TABLE github_setup (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE UNIQUE,
+    repository_url VARCHAR(255),
+    status ai_generation_status DEFAULT 'not_started',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Market Research table
+CREATE TABLE market_research (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE UNIQUE,
+    report_markdown TEXT,
+    status ai_generation_status DEFAULT 'not_started',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Mockup table
+CREATE TABLE mockup (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE UNIQUE,
     preview_url VARCHAR(255),
     tool_used VARCHAR(50),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    status ai_generation_status DEFAULT 'not_started',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Activity Logs table
