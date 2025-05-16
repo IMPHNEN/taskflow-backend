@@ -139,6 +139,22 @@ CREATE OR REPLACE TRIGGER update_market_research_modtime
     FOR EACH ROW
     EXECUTE PROCEDURE update_updated_at_column();
 
+CREATE OR REPLACE TRIGGER update_mockup_modtime
+    BEFORE UPDATE ON mockup
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_updated_at_column();
+
+CREATE OR REPLACE TRIGGER update_prd_modtime
+    BEFORE UPDATE ON prd
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_updated_at_column();
+
+CREATE OR REPLACE TRIGGER update_github_setup_modtime
+    BEFORE UPDATE ON github_setup
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_updated_at_column();
+
+
 -- Optimized function to adjust task positions
 CREATE OR REPLACE FUNCTION adjust_task_positions()
 RETURNS TRIGGER AS $$
@@ -249,15 +265,13 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- Recreate triggers before_task_insert, before_task_position_update
-DROP TRIGGER IF EXISTS before_task_insert ON tasks;
-CREATE TRIGGER before_task_insert
+-- triggers before_task_insert, before_task_position_update
+CREATE OR REPLACE TRIGGER before_task_insert
     BEFORE INSERT ON tasks
     FOR EACH ROW
     EXECUTE FUNCTION adjust_task_positions();
 
-DROP TRIGGER IF EXISTS before_task_position_update ON tasks;
-CREATE TRIGGER before_task_position_update
+CREATE OR REPLACE TRIGGER before_task_position_update
     BEFORE UPDATE OF position, parent_id ON tasks
     FOR EACH ROW
     WHEN (

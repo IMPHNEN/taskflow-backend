@@ -3,6 +3,11 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP TRIGGER IF EXISTS update_projects_modtime ON projects;
 DROP TRIGGER IF EXISTS update_tasks_modtime ON tasks;
 DROP TRIGGER IF EXISTS update_market_research_modtime ON market_research;
+DROP TRIGGER IF EXISTS update_mockup_modtime ON mockup;
+DROP TRIGGER IF EXISTS update_prd_modtime ON prd;
+DROP TRIGGER IF EXISTS update_github_setup_modtime ON github_setup;
+DROP TRIGGER IF EXISTS before_task_insert ON tasks;
+DROP TRIGGER IF EXISTS before_task_position_update ON tasks;
 
 -- Drop functions
 DROP FUNCTION IF EXISTS public.handle_new_user();
