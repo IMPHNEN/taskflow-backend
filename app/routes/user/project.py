@@ -1,27 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional, List
 from ...middleware.auth import require_user
-from ...models.project import Project, ProjectCreate, ProjectUpdate
+from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
 from ...config import supabase
-from pydantic import BaseModel
 from ...utils.error_handler import handle_exceptions
-
-# Add new models for market research and mockups
-class MarketResearch(BaseModel):
-    id: str
-    report_markdown: Optional[str]
-    created_at: str
-    updated_at: str
-
-class Mockup(BaseModel):
-    id: str
-    preview_url: Optional[str]
-    tool_used: Optional[str]
-    created_at: str
-
-class ProjectDetail(Project):
-    market_research: Optional[MarketResearch] = None
-    mockups: Optional[Mockup] = None
 
 router = APIRouter(
     prefix="/project",
@@ -48,23 +30,20 @@ async def list_projects(user: dict = Depends(require_user)):
 @router.get("/{project_id}", response_model=ProjectDetail)
 @handle_exceptions(status_code=500)
 async def get_project(project_id: str, user: dict = Depends(require_user)):
-    """Get a specific project with market research and mockups"""
+    """Get a specific project with market research, mockup, PRD, and GitHub setup"""
     # Get project data
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
     
     if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Get market research data
-    market_research = supabase.table('market_research').select('*').eq('project_id', project_id).maybe_single().execute()
-    
-    # Get mockups data
-    mockups = supabase.table('mockups').select('*').eq('project_id', project_id).maybe_single().execute()
-
-    # Combine the data
+    # Get related data
+    related_tables = ['market_research', 'mockup', 'prd', 'github_setup']
     project_detail = project.data
-    project_detail['market_research'] = market_research.data if market_research and market_research.data else None
-    project_detail['mockups'] = mockups.data if mockups and mockups.data else None
+
+    for table in related_tables:
+        result = supabase.table(table).select('*').eq('project_id', project_id).maybe_single().execute()
+        project_detail[table] = result.data if result and result.data else None
 
     return project_detail
 
