@@ -138,7 +138,7 @@ class BRDGeneratorService:
             Include these insights in your BRD to make it more comprehensive and realistic.
 
 
-            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE USE (```) TO START AND END THE MARKDOWN RESULT.**
+            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE USE (````) TO START AND END THE MARKDOWN RESULT.**
             """,
             add_datetime_to_instructions=True,
             reasoning=True,
@@ -152,9 +152,9 @@ class BRDGeneratorService:
             brd_content = brd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(.*?)```", brd_content, re.DOTALL)
+            match = re.search(r"```(markdown)?(.*?)```", brd_content, re.DOTALL)
             if match:
-                brd_content = match.group(1).replace("markdown", "").strip()
+                brd_content = match.group(2).strip()
             
             project_name = project_details.get('project_name', 'Unnamed Project')
             logger.info(f"✅ Successfully generated BRD for {project_name}")
