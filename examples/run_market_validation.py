@@ -85,15 +85,11 @@ async def main():
     # Print summary
     if result["status"] == "success":
         print("\n✅ MARKET VALIDATION SUCCESSFUL")
-        print(f"Report Length: {len(result.get('report', ''))} characters")
-        print(f"Output files:")
-        print(f" - {result.get('report_path', 'Not saved with timestamp')}")
-        if "examples_path" in result:
-            print(f" - {result['examples_path']}")
+        print(f"Report Length: {len(result.get('content', ''))} characters")
         print(f"Time Taken: {result.get('time_taken_seconds', 0):.2f} seconds")
         
         # Print the first 200 characters as preview
-        preview = result['report'][:200] + "..." if len(result['report']) > 200 else result['report']
+        preview = result['content'][:200] + "..." if len(result['report']) > 200 else result['report']
         print(f"\nPreview:\n{preview}")
     else:
         print("\n❌ MARKET VALIDATION FAILED")
