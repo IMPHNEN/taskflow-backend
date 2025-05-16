@@ -138,7 +138,7 @@ class BRDGeneratorService:
             Include these insights in your BRD to make it more comprehensive and realistic.
 
 
-            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE USE (````) TO START AND END THE MARKDOWN RESULT.**
+            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE. USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
             """,
             add_datetime_to_instructions=True,
             reasoning=True,

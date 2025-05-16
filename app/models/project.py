@@ -6,15 +6,15 @@ from .market_research import MarketResearch
 from .mockup import Mockup
 from .prd import PRD
 from .github_setup import GitHubSetup
+from .brd import BRD
 
 class ProjectBase(BaseModel):
     name: str = Field(..., max_length=100)
-    objective: str = Field(..., max_length=255)
+    objective: str = Field(..., max_length=2000)
     estimated_income: Decimal = Field(..., ge=0)
     estimated_outcome: Decimal = Field(..., ge=0)
     start_date: date
     end_date: date
-    github_url: Optional[str] = Field(None, max_length=255)
 
 class ProjectCreate(ProjectBase):
     pass
@@ -40,7 +40,8 @@ class Project(ProjectInDB):
     pass
 
 class ProjectDetail(Project):
-    market_research: Optional[MarketResearch] = None
-    mockup: Optional[Mockup] = None
+    brd: Optional[BRD] = None
     prd: Optional[PRD] = None
+    market_research: Optional[MarketResearch] = None
     github_setup: Optional[GitHubSetup] = None 
+    mockup: Optional[Mockup] = None

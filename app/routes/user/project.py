@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from ...middleware.auth import require_user
 from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
 from ...config import supabase, brd_service, prd_service, task_service, market_validation_service
 from ...utils.error_handler import handle_exceptions
-from ...utils.ai_utils import llm_to_tasks
+from ...utils.background_tasks import (
+    generate_brd_background,
+    generate_prd_background,
+    generate_tasks_background,
+    validate_market_background
+)
 
 router = APIRouter(
     prefix="/project",
@@ -14,10 +19,27 @@ router = APIRouter(
 @handle_exceptions(status_code=400)
 async def create_project(project: ProjectCreate, user: dict = Depends(require_user)):
     """Create a new project"""
+    # Convert project model to dict
+    project_dict = project.model_dump()
+    
+    # Convert Decimal values to float for JSON serialization
+    if 'estimated_income' in project_dict:
+        project_dict['estimated_income'] = float(project_dict['estimated_income'])
+    if 'estimated_outcome' in project_dict:
+        project_dict['estimated_outcome'] = float(project_dict['estimated_outcome'])
+    
+    # Convert date objects to ISO format strings
+    if 'start_date' in project_dict and project_dict['start_date']:
+        project_dict['start_date'] = project_dict['start_date'].isoformat()
+    if 'end_date' in project_dict and project_dict['end_date']:
+        project_dict['end_date'] = project_dict['end_date'].isoformat()
+    
+    # Insert project with converted values
     project_data = supabase.table('projects').insert({
-        **project.model_dump(),
+        **project_dict,
         'user_id': user['id']
     }).execute()
+    
     return {"message": "Project created successfully"}
 
 @router.get("", response_model=list[Project])
@@ -58,10 +80,23 @@ async def update_project(project_id: str, project_update: ProjectUpdate, user: d
     if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Update project
-    supabase.table('projects').update(
-        project_update.model_dump(exclude_unset=True)
-    ).eq('id', project_id).execute()
+    # Convert project model to dict with only set values
+    update_dict = project_update.model_dump(exclude_unset=True)
+    
+    # Convert Decimal values to float for JSON serialization
+    if 'estimated_income' in update_dict:
+        update_dict['estimated_income'] = float(update_dict['estimated_income'])
+    if 'estimated_outcome' in update_dict:
+        update_dict['estimated_outcome'] = float(update_dict['estimated_outcome'])
+    
+    # Convert date objects to ISO format strings
+    if 'start_date' in update_dict and update_dict['start_date']:
+        update_dict['start_date'] = update_dict['start_date'].isoformat()
+    if 'end_date' in update_dict and update_dict['end_date']:
+        update_dict['end_date'] = update_dict['end_date'].isoformat()
+    
+    # Update project with converted values
+    supabase.table('projects').update(update_dict).eq('id', project_id).execute()
     
     return {"message": "Project updated successfully"}
 
@@ -82,17 +117,26 @@ async def delete_project(project_id: str, user: dict = Depends(require_user)):
 
 @router.post("/{project_id}/generate-brd")
 @handle_exceptions(status_code=500)
-async def generate_brd(project_id: str, user: dict = Depends(require_user)):
+async def generate_brd(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Generate BRD (Business Requirements Document) for project"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Check if BRD record exists, if not create it
+    # Check if BRD record exists
     brd_record = supabase.table('brd').select('*').eq('project_id', project_id).maybe_single().execute()
     
-    if not brd_record.data:
+    # If BRD already exists and is not failed, return the existing content
+    if brd_record and brd_record.data['status'] != 'failed':
+        return {
+            "message": f"BRD exists with status: {brd_record.data['status']}",
+            "content": brd_record.data.get('brd_markdown', ''),
+            "status": brd_record.data['status']
+        }
+    
+    # Create new record or update failed record to in_progress
+    if not brd_record:
         # Create a new BRD record with status 'in_progress'
         supabase.table('brd').insert({
             'project_id': project_id,
@@ -102,55 +146,44 @@ async def generate_brd(project_id: str, user: dict = Depends(require_user)):
         # Update the status to 'in_progress'
         supabase.table('brd').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
-    try:
-        # Use the BRD service instance from config
-        brd_result = await brd_service.generate_brd({
-            'project_name': project.data['name'],
-            'project_description': project.data['objective'],
-            'start_date': project.data['start_date'],
-            'end_date': project.data['end_date'],
-        })
-        
-        if brd_result['status'] == 'success':
-            # Update the BRD record with the content and 'completed' status
-            supabase.table('brd').update({
-                'brd_markdown': brd_result['content'],
-                'status': 'completed'
-            }).eq('project_id', project_id).execute()
-            
-            return {
-                "message": "BRD generated successfully",
-                "content": brd_result['content']
-            }
-        else:
-            # Update the status to 'failed'
-            supabase.table('brd').update({'status': 'failed'}).eq('project_id', project_id).execute()
-            raise HTTPException(status_code=500, detail=f"BRD generation failed: {brd_result.get('error', 'Unknown error')}")
+    # Add the background task
+    background_tasks.add_task(generate_brd_background, project_id, project.data)
     
-    except Exception as e:
-        # Update the status to 'failed'
-        supabase.table('brd').update({'status': 'failed'}).eq('project_id', project_id).execute()
-        raise HTTPException(status_code=500, detail=f"BRD generation failed: {str(e)}")
+    # Return immediately with in_progress status
+    return {
+        "message": "BRD generation started",
+        "content": "",
+        "status": "in_progress"
+    }
 
 @router.post("/{project_id}/generate-prd")
 @handle_exceptions(status_code=500)
-async def generate_prd(project_id: str, user: dict = Depends(require_user)):
+async def generate_prd(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Generate PRD (Product Requirements Document) for project"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check if PRD record exists
+    prd_record = supabase.table('prd').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    # If PRD already exists and is not failed, return the existing content
+    if prd_record and prd_record.data['status'] != 'failed':
+        return {
+            "message": f"PRD exists with status: {prd_record.data['status']}",
+            "content": prd_record.data.get('prd_markdown', ''),
+            "status": prd_record.data['status']
+        }
     
     # Check BRD status - PRD can only be generated if BRD is completed
     brd_record = supabase.table('brd').select('*').eq('project_id', project_id).maybe_single().execute()
     
-    if not brd_record.data or brd_record.data['status'] != 'completed':
+    if not brd_record or brd_record.data['status'] != 'completed':
         raise HTTPException(status_code=400, detail="BRD must be completed before generating PRD")
     
-    # Check if PRD record exists, if not create it
-    prd_record = supabase.table('prd').select('*').eq('project_id', project_id).maybe_single().execute()
-    
-    if not prd_record.data:
+    # Create new record or update failed record to in_progress
+    if not prd_record:
         # Create a new PRD record with status 'in_progress'
         supabase.table('prd').insert({
             'project_id': project_id,
@@ -160,42 +193,55 @@ async def generate_prd(project_id: str, user: dict = Depends(require_user)):
         # Update the status to 'in_progress'
         supabase.table('prd').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
-    try:
-        # Use the PRD service instance from config
-        prd_result = await prd_service.generate_prd(
-            brd_content=brd_record.data['brd_markdown'], 
-            project_name=project.data['name']
-        )
-        
-        if prd_result['status'] == 'success':
-            # Update the PRD record with the content and 'completed' status
-            supabase.table('prd').update({
-                'prd_markdown': prd_result['content'],
-                'status': 'completed'
-            }).eq('project_id', project_id).execute()
-            
-            return {
-                "message": "PRD generated successfully",
-                "content": prd_result['content']
-            }
-        else:
-            # Update the status to 'failed'
-            supabase.table('prd').update({'status': 'failed'}).eq('project_id', project_id).execute()
-            raise HTTPException(status_code=500, detail=f"PRD generation failed: {prd_result.get('error', 'Unknown error')}")
+    # Add the background task
+    background_tasks.add_task(
+        generate_prd_background, 
+        project_id, 
+        brd_record.data['brd_markdown'], 
+        project.data['name']
+    )
     
-    except Exception as e:
-        # Update the status to 'failed'
-        supabase.table('prd').update({'status': 'failed'}).eq('project_id', project_id).execute()
-        raise HTTPException(status_code=500, detail=f"PRD generation failed: {str(e)}")
+    # Return immediately with in_progress status
+    return {
+        "message": "PRD generation started",
+        "content": "",
+        "status": "in_progress"
+    }
 
 @router.post("/{project_id}/generate-scope")
 @handle_exceptions(status_code=500)
-async def generate_project_scope(project_id: str, user: dict = Depends(require_user)):
+async def generate_project_scope(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Generate project scope (tasks) using AI"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check task generation status
+    task_status = project.data.get('tasks_generation_status', 'not_started')
+    
+    # If already in progress or completed, return status
+    if task_status != 'failed' and task_status != 'not_started':
+        existing_tasks = supabase.table('tasks').select('id').eq('project_id', project_id).execute()
+        task_count = len(existing_tasks.data) if existing_tasks.data else 0
+        
+        # If completed and tasks exist, return the tasks
+        if task_status == 'completed' and task_count > 0:
+            all_tasks = supabase.table('tasks').select('*').eq('project_id', project_id).execute()
+            return {
+                "message": "Tasks already exist for this project",
+                "task_count": task_count,
+                "tasks": all_tasks.data,
+                "status": "completed"
+            }
+        
+        # If in progress, return status without tasks
+        return {
+            "message": f"Task generation is {task_status}",
+            "task_count": task_count,
+            "tasks": [],
+            "status": task_status
+        }
     
     # Check PRD status - Tasks can only be generated if PRD is completed
     prd_record = supabase.table('prd').select('*').eq('project_id', project_id).maybe_single().execute()
@@ -203,41 +249,48 @@ async def generate_project_scope(project_id: str, user: dict = Depends(require_u
     if not prd_record.data or prd_record.data['status'] != 'completed':
         raise HTTPException(status_code=400, detail="PRD must be completed before generating tasks")
     
-    try:
-        # Use the task service instance from config
-        task_result = await task_service.generate_tasks(prd_record.data['prd_markdown'])
-        
-        if 'items' in task_result:
-            # Convert LLM generated tasks to task records
-            task_records = llm_to_tasks(task_result['items'], project_id)
-            
-            # Insert tasks into the database
-            supabase.table('tasks').insert(task_records).execute()
-            
-            return {
-                "message": "Project scope generated successfully",
-                "task_count": len(task_records),
-                "tasks": task_records
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Task generation failed: Invalid task structure")
+    # Set task generation status to in_progress in the projects table
+    supabase.table('projects').update({
+        'tasks_generation_status': 'in_progress'
+    }).eq('id', project_id).execute()
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Task generation failed: {str(e)}")
+    # Add the background task
+    background_tasks.add_task(
+        generate_tasks_background, 
+        project_id, 
+        prd_record.data['prd_markdown']
+    )
+    
+    # Return immediately with in_progress status
+    return {
+        "message": "Task generation started",
+        "task_count": 0,
+        "tasks": [],
+        "status": "in_progress"
+    }
 
 @router.post("/{project_id}/validate-market")
 @handle_exceptions(status_code=500)
-async def validate_market_fit(project_id: str, user: dict = Depends(require_user)):
+async def validate_market_fit(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Validate market fit using AI analysis"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Check if market research record exists, if not create it
+    # Check if market research record exists
     market_record = supabase.table('market_research').select('*').eq('project_id', project_id).maybe_single().execute()
     
-    if not market_record.data:
+    # If market research already exists and is not failed, return the existing content
+    if market_record and market_record.data['status'] != 'failed':
+        return {
+            "message": f"Market validation exists with status: {market_record.data['status']}",
+            "content": market_record.data.get('report_markdown', ''),
+            "status": market_record.data['status']
+        }
+    
+    # Create new record or update failed record to in_progress
+    if not market_record:
         # Create a new market research record with status 'in_progress'
         supabase.table('market_research').insert({
             'project_id': project_id,
@@ -247,30 +300,19 @@ async def validate_market_fit(project_id: str, user: dict = Depends(require_user
         # Update the status to 'in_progress'
         supabase.table('market_research').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
-    try:
-        # Use the market validation service instance from config
-        market_result = await market_validation_service.run_market_validation(project.data['objective'])
-        
-        if market_result['status'] == 'success':
-            # Update the market research record with the content and 'completed' status
-            supabase.table('market_research').update({
-                'report_markdown': market_result['content'],
-                'status': 'completed'
-            }).eq('project_id', project_id).execute()
-            
-            return {
-                "message": "Market validation completed successfully",
-                "content": market_result['content']
-            }
-        else:
-            # Update the status to 'failed'
-            supabase.table('market_research').update({'status': 'failed'}).eq('project_id', project_id).execute()
-            raise HTTPException(status_code=500, detail=f"Market validation failed: {market_result.get('error', 'Unknown error')}")
+    # Add the background task
+    background_tasks.add_task(
+        validate_market_background, 
+        project_id, 
+        project.data['objective']
+    )
     
-    except Exception as e:
-        # Update the status to 'failed'
-        supabase.table('market_research').update({'status': 'failed'}).eq('project_id', project_id).execute()
-        raise HTTPException(status_code=500, detail=f"Market validation failed: {str(e)}")
+    # Return immediately with in_progress status
+    return {
+        "message": "Market validation started",
+        "content": "",
+        "status": "in_progress"
+    }
 
 @router.post("/{project_id}/setup-repository")
 @handle_exceptions(status_code=500)
@@ -278,7 +320,7 @@ async def setup_project_repository(project_id: str, user: dict = Depends(require
     """Setup GitHub repository for project"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
         
     # TODO: Implement GitHub repository setup using MCP
@@ -296,7 +338,7 @@ async def generate_project_preview(project_id: str, user: dict = Depends(require
     """Generate project preview/mockup"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project.data:
+    if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
         
     # TODO: Implement preview generation using v0.dev or similar

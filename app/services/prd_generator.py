@@ -151,7 +151,7 @@ class PRDGeneratorService:
             4. Be specific about technical implementation details
             5. Adapt the template structure to fit the specific project in the BRD
 
-            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE USE (````) TO START AND END THE MARKDOWN RESULT.**
+            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE. USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
             """,
             add_datetime_to_instructions=True,
             reasoning=True,
@@ -163,6 +163,7 @@ class PRDGeneratorService:
         try:
             prd_response = await prd_agent.arun()
             prd_content = prd_response.content.strip()
+
             # Extract content between ``` markers using regex
             match = re.search(r"```(markdown)?(.*?)```", prd_content, re.DOTALL)
             if match:
