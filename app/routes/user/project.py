@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Optional, List
 from ...middleware.auth import require_user
 from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
 from ...config import supabase

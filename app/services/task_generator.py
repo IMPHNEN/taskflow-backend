@@ -1,10 +1,7 @@
 """
 TaskGenerator service for generating task hierarchies from PRD.
 """
-import json
 import logging
-import re
-import os
 from typing import Dict, Any
 
 from agno.agent import Agent
@@ -21,7 +18,7 @@ from .config import (
     ENABLE_MARKDOWN
 )
 from .models import TaskHierarchy
-from ..utils.ai_utils import extract_json, save_to_file
+from ..utils.ai_utils import extract_json
 
 # Set up logging
 logging.basicConfig(
