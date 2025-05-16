@@ -2,6 +2,10 @@ from datetime import datetime, date
 from typing import Optional
 from pydantic import BaseModel, UUID4, Field
 from decimal import Decimal
+from .market_research import MarketResearch
+from .mockup import Mockup
+from .prd import PRD
+from .github_setup import GitHubSetup
 
 class ProjectBase(BaseModel):
     name: str = Field(..., max_length=100)
@@ -33,4 +37,10 @@ class ProjectInDB(ProjectBase):
         from_attributes = True
 
 class Project(ProjectInDB):
-    pass 
+    pass
+
+class ProjectDetail(Project):
+    market_research: Optional[MarketResearch] = None
+    mockup: Optional[Mockup] = None
+    prd: Optional[PRD] = None
+    github_setup: Optional[GitHubSetup] = None 
