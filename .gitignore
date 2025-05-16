@@ -175,3 +175,4 @@ cython_debug/
 
 # Custom
 /test.py
+results/
