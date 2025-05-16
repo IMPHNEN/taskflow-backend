@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from .services.brd_generator import BRDGeneratorService
+from .services.prd_generator import PRDGeneratorService
+from .services.task_generator import TaskGeneratorService
+from .services.market_validation import MarketValidationService
 
 # Load environment variables
 load_dotenv()
@@ -25,3 +29,10 @@ CORS_ORIGINS = [
     FRONTEND_URL,  # Frontend URL
     "http://localhost:8000",  # FastAPI default port
 ] 
+
+# Initialize AI services once to be reused across the application
+# Create singleton service instances
+brd_service = BRDGeneratorService()
+prd_service = PRDGeneratorService()
+task_service = TaskGeneratorService()
+market_validation_service = MarketValidationService() 

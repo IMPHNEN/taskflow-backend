@@ -1,12 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from ...middleware.auth import require_user
 from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
-from ...config import supabase
+from ...config import supabase, brd_service, prd_service, task_service, market_validation_service
 from ...utils.error_handler import handle_exceptions
-from ...services.brd_generator import BRDGeneratorService
-from ...services.prd_generator import PRDGeneratorService
-from ...services.task_generator import TaskGeneratorService
-from ...services.market_validation import MarketValidationService
 from ...utils.ai_utils import llm_to_tasks
 
 router = APIRouter(
@@ -107,9 +103,8 @@ async def generate_brd(project_id: str, user: dict = Depends(require_user)):
         supabase.table('brd').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
     try:
-        # Generate BRD using the service
-        brd_generator = BRDGeneratorService()
-        brd_result = await brd_generator.generate_brd({
+        # Use the BRD service instance from config
+        brd_result = await brd_service.generate_brd({
             'project_name': project.data['name'],
             'project_description': project.data['objective'],
             'start_date': project.data['start_date'],
@@ -166,9 +161,8 @@ async def generate_prd(project_id: str, user: dict = Depends(require_user)):
         supabase.table('prd').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
     try:
-        # Generate PRD using the service
-        prd_generator = PRDGeneratorService()
-        prd_result = await prd_generator.generate_prd(
+        # Use the PRD service instance from config
+        prd_result = await prd_service.generate_prd(
             brd_content=brd_record.data['brd_markdown'], 
             project_name=project.data['name']
         )
@@ -210,9 +204,8 @@ async def generate_project_scope(project_id: str, user: dict = Depends(require_u
         raise HTTPException(status_code=400, detail="PRD must be completed before generating tasks")
     
     try:
-        # Generate tasks using the service
-        task_generator = TaskGeneratorService()
-        task_result = await task_generator.generate_tasks(prd_record.data['prd_markdown'])
+        # Use the task service instance from config
+        task_result = await task_service.generate_tasks(prd_record.data['prd_markdown'])
         
         if 'items' in task_result:
             # Convert LLM generated tasks to task records
@@ -255,9 +248,8 @@ async def validate_market_fit(project_id: str, user: dict = Depends(require_user
         supabase.table('market_research').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
     
     try:
-        # Generate market validation using the service
-        market_service = MarketValidationService()
-        market_result = await market_service.run_market_validation(project.data['objective'])
+        # Use the market validation service instance from config
+        market_result = await market_validation_service.run_market_validation(project.data['objective'])
         
         if market_result['status'] == 'success':
             # Update the market research record with the content and 'completed' status
