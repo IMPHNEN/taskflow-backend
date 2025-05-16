@@ -226,6 +226,7 @@ class MarketValidationService:
         # Market Validation Team
         self.team = Team(
             name="MarketValidationTeam",
+            # coordinate or route
             mode="coordinate",
             model=self.manager_model,
             members=[self.market_researcher, self.market_analyzer, self.report_generator],
