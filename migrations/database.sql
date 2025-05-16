@@ -51,6 +51,16 @@ CREATE TABLE tasks (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- BRD table
+CREATE TABLE brd (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID REFERENCES projects(id) NOT NULL ON DELETE CASCADE UNIQUE,
+    brd_markdown TEXT,
+    status ai_generation_status DEFAULT 'not_started',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- PRD table
 CREATE TABLE prd (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

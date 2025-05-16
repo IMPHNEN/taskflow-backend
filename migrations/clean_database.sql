@@ -17,6 +17,7 @@ DROP FUNCTION IF EXISTS update_updated_at_column();
 DROP TABLE IF EXISTS activity_logs;
 DROP TABLE IF EXISTS mockup;
 DROP TABLE IF EXISTS prd;
+DROP TABLE IF EXISTS brd;
 DROP TABLE IF EXISTS github_setup;
 DROP TABLE IF EXISTS market_research;
 DROP TABLE IF EXISTS tasks;
