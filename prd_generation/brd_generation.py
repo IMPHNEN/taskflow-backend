@@ -72,38 +72,39 @@ class BRDGenerator:
             objectives, target audience, features, budget, timeline, etc.
         """
         print("\n===== PROJECT DETAILS INPUT =====")
-        project_name = input("Enter project name: ")
-        project_description = input("Enter brief project description: ")
-        
-        print("\nBusiness Objectives (Enter 'done' when finished):")
-        business_objectives = []
-        while True:
-            objective = input("Enter a business objective: ")
-            if objective.lower() == 'done':
-                break
-            business_objectives.append(objective)
-            
-        print("\nTarget Audience:")
-        target_audience = input("Who is the target audience for this project? ")
-        
-        print("\nKey Features (Enter 'done' when finished):")
-        key_features = []
-        while True:
-            feature = input("Enter a key feature: ")
-            if feature.lower() == 'done':
-                break
-            key_features.append(feature)
-            
-        budget = input("\nProject budget (if known): ")
-        timeline = input("Project timeline (e.g., 3 months): ")
-        
-        # Industry and competitors
-        industry = input("\nIndustry sector: ")
-        competitors = input("Known competitors (comma separated): ")
-        
-        # Project constraints
-        constraints = input("\nAny project constraints (technical, regulatory, etc.): ")
-        
+        project_name = "LegalAssistantKnowledgeGraph"
+        project_description = (
+            "A legal assistant chatbot using LangChain, LlamaIndex KnowledgeGraphIndex, "
+            "and Qdrant/Chroma to extract metadata from Indonesian Supreme Court decisions in PDF "
+            "format and answer queries based on structured knowledge."
+        )
+
+        business_objectives = [
+            "Help legal professionals access and understand relevant past verdicts",
+            "Automate extraction of key legal metadata from court PDFs",
+            "Enable accurate Q&A over specific cases using structured knowledge",
+            "Reduce research time for prosecutors, lawyers, and judges"
+        ]
+
+        target_audience = "Prosecutors, lawyers, and judges seeking past similar case decisions"
+
+        key_features = [
+            "Automatic extraction of metadata from PDF court decisions",
+            "Semantic search via case number or uploaded PDF",
+            "Knowledge graph representation using LlamaIndex of entities and relationships in verdicts",
+            "Chat interface using Streamlit and LangChain Memory (no login required)",
+            "Case-level metadata retrieval and direct question answering"
+        ]
+
+        budget = "As minimal as possible (student project)"
+        timeline = "6 months"
+        industry = "Legal"
+        competitors = "LexisNexis, Westlaw, but none focusing on Indonesian case metadata extraction (academic prototype)"
+        constraints = (
+            "Must use open-source tools (LangChain, LlamaIndex, Qdrant/Chroma), "
+            "no login/signup, works offline with PDF input, and must run on limited hardware"
+        )
+
         return {
             "project_name": project_name,
             "project_description": project_description,
@@ -351,97 +352,6 @@ def generate_prd_from_brd(brd_file_path: str) -> str:
         raise ValueError(f"Failed to generate PRD: {e}")
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, max=10))
-def generate_task_hierarchy(prd_file_path: str) -> Dict[str, Any]:
-    """
-    Generate task hierarchy from PRD.
-    
-    Args:
-        prd_file_path: Path to the PRD file
-        
-    Returns:
-        Task hierarchy in JSON format
-        
-    Raises:
-        FileNotFoundError: If PRD file is not found
-        ValueError: If task hierarchy generation fails
-    """
-    logger.info(f"Reading PRD from: {prd_file_path}")
-
-    if not os.path.isfile(prd_file_path):
-        raise FileNotFoundError(f"File not found: {prd_file_path}")
-
-    with open(prd_file_path, "r", encoding="utf-8") as f:
-        prd_content = f.read()
-
-    logger.info("Generating task hierarchy from PRD...")
-
-    prompt = f"""
-You are an expert technical project planner. Based on the Product Requirements Document (PRD) below, generate a structured implementation plan in JSON.
-
-PRD:
-\"\"\"{prd_content}\"\"\"
-
-Output JSON format:
-{{
-  "epics": [
-    {{
-      "title": "Epic Title",
-      "features": [
-        {{
-          "title": "Feature Title",
-          "tasks": [
-            {{
-              "id": "task_001",
-              "title": "Task Title",
-              "description": "Short one or two sentence summary of the task.",
-              "estimated_hours": 8,
-              "priority": "high",  // or "medium", "low"
-              "dependencies": ["task_000"]
-            }}
-          ]
-        }}
-      ]
-    }}
-  ]
-}}
-
-Guidelines:
-- Output ONLY valid JSON (no prose or explanation).
-- All keys must be present in every task.
-- Use short string IDs: task_001, task_002, etc.
-- Estimate realistic work hours.
-- Set priority: high (urgent), medium (important), low (non-blocking).
-- Include description for each task (1–2 concise sentences).
-- Use task dependencies where appropriate.
-"""
-
-    agent = Agent(
-        model=Groq(id=TASKFLOW_MODEL_ID, api_key=GROQ_API_KEY),
-        name="TaskGenerator",
-        instructions=prompt
-    )
-
-    response = agent.run()
-
-    try:
-        content = response.content.strip()
-        if content.startswith("```json"):
-            content = content.replace("```json", "").replace("```", "").strip()
-        result = json.loads(content)
-        logger.info("✅ Successfully generated task hierarchy.")
-        
-        # Save the task hierarchy to a file
-        with open("task_hierarchy.json", "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2)
-        logger.info("Task hierarchy saved to task_hierarchy.json")
-        
-        return result
-    except json.JSONDecodeError as e:
-        logger.error(f"❌ Failed to parse Agno response: {e}\nRaw content:\n{content}")
-        raise ValueError(f"Agno returned invalid JSON: {str(e)}\nRaw Content:\n{content}")
-
-
 def main():
     """
     Main function to run the BRD and PRD generation workflow.
@@ -498,10 +408,6 @@ def main():
         prd_content = generate_prd_from_brd(brd_file)
         print(f"PRD generation completed successfully. Saved to: {args.prd_file}")
         
-        # Generate task hierarchy from PRD
-        print("\nGenerating task hierarchy from PRD...")
-        task_hierarchy = generate_task_hierarchy(args.prd_file)
-        print("Task hierarchy generation completed successfully. Saved to: task_hierarchy.json")
         
     except Exception as e:
         logger.error(f"Error during document generation: {e}")
