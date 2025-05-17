@@ -165,9 +165,9 @@ class PRDGeneratorService:
             prd_content = prd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(markdown)?(.*?)```", prd_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?(.*?)```\s*$", prd_content, re.DOTALL)
             if match:
-                prd_content = match.group(2).strip()
+                prd_content = match.group(1).strip()
             
             logger.info(f"✅ Successfully generated PRD for {project_name}")
             

@@ -285,7 +285,7 @@ class MarketValidationService:
             # Extract content between ``` markers using regex
             match = re.search(r"```(?:markdown)?(.*?)```\s*$", report_content, re.DOTALL)
             if match:
-                report_content = match.group(2).strip()
+                report_content = match.group(1).strip()
             
             return {
                 "status": "success",
