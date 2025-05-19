@@ -23,7 +23,7 @@ async def github_login():
     auth_url = supabase.auth.sign_in_with_oauth({
         "provider": "github",
         "options": {
-            "redirect_to": f"{FRONTEND_URL}/auth/callback",
+            "redirect_to": f"{FRONTEND_URL}/auth/callback/github",
             "skip_http_redirect": True,  # Return URL instead of redirecting
             "scopes": "user:email read:user openid repo admin:repo_hook"
         }
