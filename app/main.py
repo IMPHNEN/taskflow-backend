@@ -5,6 +5,7 @@ from .routes.user import auth as user_auth
 from .routes.user import project as user_project
 from .routes.user import task as user_task
 from .routes.user import index as user_info
+from .routes.user import setting as user_setting
 from .routes.admin import auth as admin_auth
 from .routes.super import auth as super_auth
 
@@ -28,6 +29,7 @@ app.add_middleware(
 
 # Include user routers
 app.include_router(user_info.router, prefix=f"{API_V1_PREFIX}/user")
+app.include_router(user_setting.router, prefix=f"{API_V1_PREFIX}/user")
 app.include_router(user_auth.router, prefix=f"{API_V1_PREFIX}/user")
 app.include_router(user_project.router, prefix=f"{API_V1_PREFIX}/user")
 app.include_router(user_task.router, prefix=f"{API_V1_PREFIX}/user")

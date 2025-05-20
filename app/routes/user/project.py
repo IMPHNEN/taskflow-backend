@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+import httpx
 from ...middleware.auth import require_user
 from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
-from ...config import supabase, brd_service, prd_service, task_service, market_validation_service
+from ...config import FRONTEND_URL, supabase, brd_service, prd_service, task_service, market_validation_service
 from ...utils.error_handler import handle_exceptions
+from ...utils.github_utils import get_github_token, validate_github_token
 from ...utils.background_tasks import (
     generate_brd_background,
     generate_prd_background,
@@ -318,6 +320,19 @@ async def validate_market_fit(project_id: str, background_tasks: BackgroundTasks
 @handle_exceptions(status_code=500)
 async def setup_project_repository(project_id: str, user: dict = Depends(require_user)):
     """Setup GitHub repository for project"""
+    # Get github access token from user
+    github_access_token = get_github_token(user['id'])
+    
+    if not github_access_token:
+        raise HTTPException(status_code=400, detail="You need to connect your GitHub account to use this feature")
+    
+    # Validate token and check required scopes
+    required_scopes = {'repo', 'admin:repo_hook', 'read:user', 'user:email'}
+    user_infos = validate_github_token(github_access_token, required_scopes)
+    
+    # Get github username
+    github_username = user_infos.get('login')
+
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
     if not project or not project.data:

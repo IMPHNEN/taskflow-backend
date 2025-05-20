@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 from ...config import supabase, FRONTEND_URL
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ async def github_login():
         "options": {
             "redirect_to": f"{FRONTEND_URL}/auth/callback/github",
             "skip_http_redirect": True,  # Return URL instead of redirecting
-            "scopes": "user:email read:user openid repo admin:repo_hook"
+            "scopes": "user:email read:user openid"
         }
     })
     code_verifier = supabase.auth._storage.get_item(
@@ -56,9 +56,9 @@ async def exchange_github_code(body: GitHubCodeExchange):
         raise HTTPException(status_code=403, detail="Not authorized as user")
     
     # Store GitHub access token
-    supabase.table('users').update({
-        'github_access_token': session.provider_token
-    }).eq('id', user.user.id).execute()
+    # supabase.table('users').update({
+    #     'github_access_token': session.provider_token
+    # }).eq('id', user.user.id).execute()
     
     return {
         "access_token": session.access_token,
@@ -86,12 +86,11 @@ async def refresh_token(body: RefreshTokenRequest):
 
 @router.post("/signout")
 @handle_exceptions(status_code=400)
-async def signout(request: Request):
+async def signout(body: RefreshTokenRequest):
     """Sign out user and invalidate session"""
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith('Bearer '):
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    
-    token = auth_header.split(' ')[1]
-    supabase.auth.sign_out(token)
+    # call refresh token
+    supabase.auth.refresh_session(body.refresh_token)
+    supabase.auth.sign_out({
+        "scope": "local"
+    })
     return {"message": "Successfully signed out"}
