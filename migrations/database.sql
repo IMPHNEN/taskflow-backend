@@ -16,7 +16,6 @@ CREATE TABLE public.users (
     avatar_url TEXT,
     role user_role DEFAULT 'user', --mvp belum dipake
     provider_id VARCHAR(50) UNIQUE,
-    provider_username VARCHAR(50) UNIQUE,
     github_access_token VARCHAR(255),
     is_banned BOOLEAN DEFAULT FALSE, --mvp belum dipake
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -298,8 +297,8 @@ language plpgsql
 security definer set search_path = ''
 as $$
 begin
-    insert into public.users (id, full_name, avatar_url, provider_id, provider_username)
-    values (new.id, new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'avatar_url', new.raw_user_meta_data ->> 'provider_id', new.raw_user_meta_data ->> 'provider_username');
+    insert into public.users (id, full_name, avatar_url, provider_id)
+    values (new.id, COALESCE(new.raw_user_meta_data ->> 'full_name', 'No Name'), new.raw_user_meta_data ->> 'avatar_url', new.raw_user_meta_data ->> 'provider_id');
     return new;
 end;
 $$;
