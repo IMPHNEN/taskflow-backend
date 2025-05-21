@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-import httpx
 from pydantic import BaseModel
 from ...config import supabase, FRONTEND_URL
 from ...middleware.auth import require_user

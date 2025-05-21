@@ -3,7 +3,6 @@ from typing import Optional
 from ...middleware.auth import require_user
 from ...models.task import Task, TaskCreate, TaskUpdate, TaskStatus
 from ...config import supabase
-from postgrest.exceptions import APIError
 from ...utils.error_handler import handle_exceptions
 
 router = APIRouter(
