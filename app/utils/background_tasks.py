@@ -65,9 +65,10 @@ async def generate_tasks_background(project_id: str, prd_content: str):
             # Insert tasks into the database
             supabase.table('tasks').insert(task_records).execute()
             
-            # Update project status to completed
+            # Update project status to completed and store raw tasks
             supabase.table('projects').update({
-                'tasks_generation_status': 'completed'
+                'tasks_generation_status': 'completed',
+                'tasks_generated': task_records
             }).eq('id', project_id).execute()
         else:
             # Update project status to failed

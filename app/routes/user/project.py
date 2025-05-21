@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 import httpx
 from ...middleware.auth import require_user
 from ...models.project import Project, ProjectCreate, ProjectUpdate, ProjectDetail
-from ...config import FRONTEND_URL, supabase, brd_service, prd_service, task_service, market_validation_service
+from ...config import supabase
 from ...utils.error_handler import handle_exceptions
 from ...utils.github_utils import get_github_token, validate_github_token
 from ...utils.background_tasks import (
@@ -224,24 +224,23 @@ async def generate_project_scope(project_id: str, background_tasks: BackgroundTa
     
     # If already in progress or completed, return status
     if task_status != 'failed' and task_status != 'not_started':
-        existing_tasks = supabase.table('tasks').select('id').eq('project_id', project_id).execute()
-        task_count = len(existing_tasks.data) if existing_tasks.data else 0
-        
-        # If completed and tasks exist, return the tasks
-        if task_status == 'completed' and task_count > 0:
-            all_tasks = supabase.table('tasks').select('*').eq('project_id', project_id).execute()
+        # If completed, return the tasks_generated
+        if task_status == 'completed' and project.data.get('tasks_generated'):
+            raw_tasks = project.data.get('tasks_generated')
+            task_count = len(raw_tasks) if raw_tasks else 0
+            
             return {
-                "message": "Tasks already exist for this project",
+                "message": "Tasks already generated for this project",
                 "task_count": task_count,
-                "tasks": all_tasks.data,
+                "tasks_generated": raw_tasks,
                 "status": "completed"
             }
         
         # If in progress, return status without tasks
         return {
             "message": f"Task generation is {task_status}",
-            "task_count": task_count,
-            "tasks": [],
+            "task_count": 0,
+            "tasks_generated": [],
             "status": task_status
         }
     
@@ -267,7 +266,7 @@ async def generate_project_scope(project_id: str, background_tasks: BackgroundTa
     return {
         "message": "Task generation started",
         "task_count": 0,
-        "tasks": [],
+        "tasks_generated": [],
         "status": "in_progress"
     }
 

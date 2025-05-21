@@ -40,6 +40,8 @@ class Project(ProjectInDB):
     pass
 
 class ProjectDetail(Project):
+    tasks_generation_status: Optional[str] = None
+    tasks_generated: Optional[list] = None
     brd: Optional[BRD] = None
     prd: Optional[PRD] = None
     market_research: Optional[MarketResearch] = None

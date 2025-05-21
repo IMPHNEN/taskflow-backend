@@ -32,6 +32,7 @@ CREATE TABLE projects (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     tasks_generation_status ai_generation_status DEFAULT 'not_started',
+    tasks_generated JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
