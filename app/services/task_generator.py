@@ -70,7 +70,7 @@ class TaskGeneratorService:
         logger.info("🧠 Generating task hierarchy from PRD...")
 
         prompt = f"""
-You are an expert technical project planner. Based on the Product Requirements Document (PRD) below, generate a structured, hierarchical task breakdown in JSON format that matches the database schema.
+You are TaskFlow, an expert technical project planner. Based on the Product Requirements Document (PRD) below, generate a structured, hierarchical task breakdown in JSON format that matches the database schema.
 
 PRD:
 \"\"\"{prd_content}\"\"\"

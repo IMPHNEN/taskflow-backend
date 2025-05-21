@@ -91,7 +91,7 @@ class BRDGeneratorService:
             model=self.model,
             name="BRDGenerator",
             instructions=f"""
-            You are an expert business analyst. Based on the provided project information,
+            You are TaskFlow, an expert business analyst. Based on the provided project information,
             create a comprehensive Business Requirements Document (BRD) in markdown format.
             
             Project Details:
@@ -152,7 +152,7 @@ class BRDGeneratorService:
             brd_content = brd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?(.*?)```\s*$", brd_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", brd_content, re.DOTALL)
             if match:
                 brd_content = match.group(1).strip()
             

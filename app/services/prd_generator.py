@@ -84,7 +84,7 @@ class PRDGeneratorService:
             model=self.model,
             name="PRDGenerator",
             instructions=f"""
-            You are an expert product manager. Based on the provided Business Requirements Document (BRD),
+            You are TaskFlow, an expert product manager. Based on the provided Business Requirements Document (BRD),
             create a comprehensive Product Requirements Document (PRD) in markdown format.
             
             BRD:
@@ -165,7 +165,7 @@ class PRDGeneratorService:
             prd_content = prd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?(.*?)```\s*$", prd_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", prd_content, re.DOTALL)
             if match:
                 prd_content = match.group(1).strip()
             

@@ -134,7 +134,7 @@ class MarketValidationService:
             model=self.market_analysis_model,
             role="Analyzes market data and identifies trends, gaps, and opportunities",
             description=(
-                "You are a market analysis expert. Given data on competitors, features, and pricing, "
+                "You are TaskFlow, a market analysis expert. Given data on competitors, features, and pricing, "
                 "your goal is to analyze the market landscape and identify opportunities for the project."
             ),
             instructions=[
@@ -157,7 +157,7 @@ class MarketValidationService:
             model=self.report_generator_model,
             role="Creates a comprehensive market validation report in Markdown format",
             description=(
-                "You are a professional report writer. Given analyzed market data, "
+                "You are TaskFlow, a professional report writer. Given analyzed market data, "
                 "your goal is to create a comprehensive, well-structured market validation report."
             ),
             instructions=[
@@ -230,7 +230,7 @@ class MarketValidationService:
             mode="coordinate",
             model=self.manager_model,
             members=[self.market_researcher, self.market_analyzer, self.report_generator],
-            description="You are a market validation team. Given a project description, your goal is to produce a comprehensive market validation report.",
+            description="You are TaskFlow, a market validation team. Given a project description, your goal is to produce a comprehensive market validation report.",
             instructions=[
                 "First, ask the Market Researcher to search for and collect data on existing platforms, features, and pricing.",
                 "The researcher should first use Tavily to find relevant competitor websites, then use Firecrawl to scrape detailed information.",
@@ -283,7 +283,7 @@ class MarketValidationService:
             # report_path = save_markdown(report_content, "market_validation_report")
         
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?(.*?)```\s*$", report_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", report_content, re.DOTALL)
             if match:
                 report_content = match.group(1).strip()
             
