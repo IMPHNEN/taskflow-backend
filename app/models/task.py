@@ -19,7 +19,7 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     task_type: TaskType
     status: TaskStatus = TaskStatus.backlog
-    # position: int = Field(..., ge=0)
+    position: Optional[int] = Field(None, ge=0)
     story_point: int = Field(..., ge=0)
     parent_id: Optional[UUID4] = None
 
