@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Database configuration for memory and storage
+POSTGRES_CONNECTION = os.getenv("POSTGRES_CONNECTION")
+
 # Default model settings
 DEFAULT_MODEL_TYPE = os.getenv("DEFAULT_MODEL_TYPE", "groq")
 DEFAULT_MODEL_ID = os.getenv("DEFAULT_MODEL_ID", "llama-3.3-70b-versatile")
