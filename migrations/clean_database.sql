@@ -23,6 +23,8 @@ DROP TABLE IF EXISTS market_research;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS ai.agent_sessions;
+DROP TABLE IF EXISTS ai.user_memories;
 
 -- Drop types
 DROP TYPE IF EXISTS user_role;

@@ -103,6 +103,29 @@ CREATE TABLE mockup (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Agno Memory and Storage table
+CREATE TABLE ai.agent_sessions (
+  session_id       VARCHAR PRIMARY KEY,
+  user_id          VARCHAR,
+  memory           JSONB,
+  session_data     JSONB,
+  extra_data       JSONB,
+  created_at       BIGINT,
+  updated_at       BIGINT,
+  agent_id         VARCHAR,
+  team_session_id  VARCHAR,
+  agent_data       JSONB,
+  team_id          VARCHAR,
+  team_data        JSONB
+);
+CREATE TABLE ai.user_memories (
+  id         VARCHAR PRIMARY KEY,
+  user_id    VARCHAR,
+  memory     JSONB,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+);
+
 -- Activity Logs table
 -- Optional, mvp belum dipake :v
 CREATE TABLE activity_logs (
