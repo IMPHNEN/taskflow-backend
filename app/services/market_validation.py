@@ -14,7 +14,10 @@ from agno.models.google import Gemini
 from agno.models.groq import Groq
 from agno.models.mistral import MistralChat
 from agno.tools.tavily import TavilyTools
-from .firecrawl import FirecrawlTools
+from agno.memory.v2.schema import UserMemory
+
+from app.services.memory_storage_service import get_memory, get_storage
+from .toolkits.firecrawl import FirecrawlTools
 
 from .config import (
     MARKET_RESEARCH_MODEL_TYPE,
@@ -107,6 +110,11 @@ class MarketValidationService:
     
     def _init_agents(self):
         """Initialize the agents for market validation."""
+        
+        # Initialize Memory and Storage using singleton service
+        self.memory = get_memory()
+        self.storage = get_storage()
+
         # Market Researcher agent
         self.market_researcher = Agent(
             name="MarketResearcher",
@@ -226,6 +234,10 @@ class MarketValidationService:
         # Market Validation Team
         self.team = Team(
             name="MarketValidationTeam",
+            memory=self.memory,
+            enable_agentic_memory=True,
+            enable_user_memories=True,
+            storage=self.storage,
             # coordinate or route
             mode="coordinate",
             model=self.manager_model,
@@ -242,7 +254,7 @@ class MarketValidationService:
                 3. Future Market Projection.
                 4. Revenue Stream and the Potential of the Revenue.
                 5. Initial Cost Estimate to produce the MVP(Minimum Viable Product).""",
-                "Expected output: A comprehensive market validation report, avoid formal introductions, small talk, or unnecessary closing statements. Start directly with the content of the report. Do not use phrases like 'This report provides...' or 'feel free to ask'. **USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**"
+                "Expected output: A comprehensive market validation report, avoid formal introductions, small talk, or unnecessary closing statements. Start directly with the content of the report. Do not use phrases like 'This report provides...' or 'feel free to ask'. **YOU MUST USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**"
             ],
             add_datetime_to_instructions=True,
             add_member_tools_to_system_message=True,
@@ -254,7 +266,7 @@ class MarketValidationService:
             markdown=ENABLE_MARKDOWN
         )
     
-    async def run_market_validation(self, project_description: str) -> Dict[str, Any]:
+    async def run_market_validation(self, project_description: str, user_id: str = None) -> Dict[str, Any]:
         """
         Run the market validation process.
         
@@ -271,7 +283,16 @@ class MarketValidationService:
         
         try:
             # Run the market validation team
-            response = await self.team.arun(project_description)
+            response = await self.team.arun(
+                f"""
+                Project Description:
+                ```markdown
+                {project_description}
+                ```
+                """,
+                user_id=user_id,
+                session_id=f"{user_id}_market_validation" if user_id else None
+            )
             
             end_time = datetime.datetime.now()
             time_taken = end_time - start_time
@@ -283,9 +304,19 @@ class MarketValidationService:
             # report_path = save_markdown(report_content, "market_validation_report")
         
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", report_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?(.*?)```\s*$", report_content, re.DOTALL)
             if match:
                 report_content = match.group(1).strip()
+            
+            self.memory.add_user_memory(user_id=user_id, memory=UserMemory(
+                memory=f"""
+                Market Validation Report:
+                ```markdown
+                {report_content}
+                ```
+                """,
+                topics=["Market Validation Report", "Market Research"],
+            ))
             
             return {
                 "status": "success",

@@ -9,6 +9,9 @@ from agno.models.groq import Groq
 from agno.models.google import Gemini
 from agno.models.openai import OpenAIChat
 from agno.models.mistral import MistralChat
+from agno.memory.v2.schema import UserMemory
+
+from app.services.memory_storage_service import get_memory, get_storage
 
 from .config import (
     TASK_MODEL_TYPE,
@@ -51,30 +54,12 @@ class TaskGeneratorService:
             self.model = MistralChat(id=self.model_id)
         else:  # Default to groq
             self.model = Groq(id=self.model_id)
-            
-        logger.info(f"Initialized Task Generator with {self.model_type} model (ID: {self.model_id})")
-
-    async def generate_tasks(self, prd_content: str) -> Dict[str, Any]:
-        """
-        Generate task hierarchy from PRD content.
         
-        Args:
-            prd_content: Content of the PRD document
-            
-        Returns:
-            Task hierarchy in dictionary format (validated)
-            
-        Raises:
-            ValueError: If task hierarchy generation fails
-        """
-        logger.info("🧠 Generating task hierarchy from PRD...")
+        self.memory = get_memory()
+        self.storage = get_storage()
 
         prompt = f"""
-You are TaskFlow, an expert technical project planner. Based on the Product Requirements Document (PRD) below, generate a structured, hierarchical task breakdown in JSON format that matches the database schema.
-
-PRD:
-\"\"\"{prd_content}\"\"\"
-
+You are TaskFlow, an expert technical project planner. Based on the provided Product Requirements Document (PRD), generate a structured, hierarchical task breakdown in JSON format that matches the database schema.
 
 Output JSON format:
 {{
@@ -116,7 +101,7 @@ Guidelines:
 - Use integer values (1, 2, 3, ...) for `position`
 """
         
-        agent = Agent(
+        self.agent = Agent(
             model=self.model,
             name="TaskGenerator",
             instructions=prompt,
@@ -126,8 +111,34 @@ Guidelines:
             debug_mode=ENABLE_DEBUG_MODE,
             markdown=ENABLE_MARKDOWN
         )
+            
+        logger.info(f"Initialized Task Generator with {self.model_type} model (ID: {self.model_id})")
 
-        response = await agent.arun()
+    async def generate_tasks(self, prd_content: str, user_id: str = None) -> Dict[str, Any]:
+        """
+        Generate task hierarchy from PRD content.
+        
+        Args:
+            prd_content: Content of the PRD document
+            
+        Returns:
+            Task hierarchy in dictionary format (validated)
+            
+        Raises:
+            ValueError: If task hierarchy generation fails
+        """
+        logger.info("🧠 Generating task hierarchy from PRD...")
+
+        response = await self.agent.arun(
+            f"""
+            PRD:
+            ```markdown
+            {prd_content}
+            ```
+            """,
+            user_id=user_id,
+            session_id=f"{user_id}_task_generator" if user_id else None
+        )
 
         try:
             content = response.content.strip()
@@ -136,6 +147,14 @@ Guidelines:
             # Validate with Pydantic
             validated_data = TaskHierarchy(**raw_result)
             result_dict = validated_data.model_dump()
+
+            self.memory.add_user_memory(
+                user_id=user_id,
+                memory=UserMemory(
+                    memory=f"Project Tasks: {result_dict}",
+                    topics=["Task Hierarchy", "Generated Tasks", "Tasks"]
+                )
+            )
 
             # Save to file (optional, for debugging)
             # save_to_file(result_dict, "task_hierarchy.json")

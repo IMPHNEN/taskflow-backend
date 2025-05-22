@@ -11,6 +11,9 @@ from agno.models.groq import Groq
 from agno.models.google import Gemini
 from agno.models.openai import OpenAIChat
 from agno.models.mistral import MistralChat
+from agno.memory.v2.schema import UserMemory
+
+from app.services.memory_storage_service import get_memory, get_storage
 
 from .config import (
     PRD_MODEL_TYPE,
@@ -52,24 +55,6 @@ class PRDGeneratorService:
         else:  # Default to groq
             self.model = Groq(id=self.model_id)
         
-        logger.info(f"Initialized PRD Generator with {self.model_type} model (ID: {self.model_id})")
-
-    async def generate_prd(self, brd_content: str, project_name: str = "Unnamed Project") -> Dict[str, Any]:
-        """
-        Generate a PRD based on a BRD.
-        
-        Args:
-            brd_content: Content of the BRD document
-            project_name: Name of the project
-            
-        Returns:
-            Dictionary with PRD generation results, including content
-            
-        Raises:
-            ValueError: If PRD generation fails
-        """
-        logger.info(f"Generating PRD for project: {project_name}")
-        
         # Load PRD template for reference if available
         prd_template = ""
         try:
@@ -80,18 +65,27 @@ class PRDGeneratorService:
         except Exception as e:
             logger.warning(f"PRD template loading failed: {e}. Proceeding without template.")
         
-        prd_agent = Agent(
+        
+        # Initialize Memory and Storage using singleton service
+        self.memory = get_memory()
+        self.storage = get_storage()
+
+        # Initialize Agent
+        self.agent = Agent(
             model=self.model,
+            memory=self.memory,
+            enable_agentic_memory=True,
+            enable_user_memories=True,
+            storage=self.storage,
             name="PRDGenerator",
             instructions=f"""
             You are TaskFlow, an expert product manager. Based on the provided Business Requirements Document (BRD),
             create a comprehensive Product Requirements Document (PRD) in markdown format.
             
-            BRD:
-            \"\"\"{brd_content}\"\"\"
-            
             PRD Template Reference:
-            \"\"\"{prd_template}\"\"\"
+            ```markdown
+            {prd_template}
+            ```
             
             Create a detailed PRD following the structure of the template provided. Your PRD should include these sections with similar formatting and level of detail:
 
@@ -151,7 +145,7 @@ class PRDGeneratorService:
             4. Be specific about technical implementation details
             5. Adapt the template structure to fit the specific project in the BRD
 
-            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE. USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
+            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE.YOU MUST USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
             """,
             add_datetime_to_instructions=True,
             reasoning=True,
@@ -159,16 +153,47 @@ class PRDGeneratorService:
             debug_mode=ENABLE_DEBUG_MODE,
             markdown=ENABLE_MARKDOWN
         )
+        logger.info(f"Initialized PRD Generator with {self.model_type} model (ID: {self.model_id})")
+
+    async def generate_prd(self, brd_content: str, project_name: str = "Unnamed Project", user_id: str = None) -> Dict[str, Any]:
+        """
+        Generate a PRD based on a BRD.
+        
+        Args:
+            brd_content: Content of the BRD document
+            project_name: Name of the project
+            
+        Returns:
+            Dictionary with PRD generation results, including content
+            
+        Raises:
+            ValueError: If PRD generation fails
+        """
+        logger.info(f"Generating PRD for project: {project_name}")
         
         try:
-            prd_response = await prd_agent.arun()
+            prd_response = await self.agent.arun(f"""
+            BRD:
+            ```markdown
+            {brd_content}
+            ```
+            """, user_id=user_id, session_id=f"{user_id}_prd" if user_id else None)
             prd_content = prd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", prd_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", prd_content, re.MULTILINE)
             if match:
                 prd_content = match.group(1).strip()
             
+            self.memory.add_user_memory(user_id=user_id, memory=UserMemory(
+                memory=f"""
+                Project PRD:
+                ```markdown
+                {prd_content}
+                ```
+                """,
+                topics=["PRD", "Product Requirements Document"],
+            ))
             logger.info(f"✅ Successfully generated PRD for {project_name}")
             
             return {

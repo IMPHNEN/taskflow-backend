@@ -12,14 +12,16 @@ from agno.models.groq import Groq
 from agno.models.google import Gemini
 from agno.models.openai import OpenAIChat
 from agno.models.mistral import MistralChat
+from agno.memory.v2.schema import UserMemory
 
 from .config import (
     BRD_MODEL_TYPE,
     BRD_MODEL_ID,
     ENABLE_DEBUG_MODE,
     ENABLE_SHOW_TOOL_CALLS,
-    ENABLE_MARKDOWN
+    ENABLE_MARKDOWN,
 )
+from .memory_storage_service import get_memory, get_storage
 
 # Set up logging
 logging.basicConfig(
@@ -52,27 +54,6 @@ class BRDGeneratorService:
             self.model = MistralChat(id=self.model_id)
         else:  # Default to groq
             self.model = Groq(id=self.model_id)
-            
-        logger.info(f"Initialized BRD Generator with {self.model_type} model (ID: {self.model_id})")
-
-    async def generate_brd(self, project_details: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate a comprehensive BRD based on project details.
-        
-        Args:
-            project_details: Dictionary containing project information including:
-                - project_name: Name of the project
-                - project_description: Brief description of the project
-                - start_date: Project start date (dd/mm/yyyy)
-                - end_date: Project end date (dd/mm/yyyy)
-            
-        Returns:
-            Dictionary with BRD generation results, including content
-            
-        Raises:
-            ValueError: If BRD generation fails
-        """
-        logger.info(f"Generating BRD for: {project_details.get('project_name', 'Unnamed Project')}")
         
         # Load BRD template for reference if available
         brd_template = ""
@@ -84,23 +65,24 @@ class BRDGeneratorService:
         except Exception as e:
             logger.warning(f"BRD template loading failed: {e}. Proceeding without template.")
         
-        # Convert project details to string for the prompt
-        project_details_text = json.dumps(project_details, indent=2)
+        # Initialize Memory and Storage using singleton service
+        self.memory = get_memory()
+        self.storage = get_storage()
+
         
-        brd_agent = Agent(
+        self.agent = Agent(
             model=self.model,
+            memory=self.memory,
+            enable_agentic_memory=True,
+            enable_user_memories=True,
+            storage=self.storage,
             name="BRDGenerator",
             instructions=f"""
             You are TaskFlow, an expert business analyst. Based on the provided project information,
             create a comprehensive Business Requirements Document (BRD) in markdown format.
             
-            Project Details:
-            ```
-            {project_details_text}
-            ```
-            
             BRD Template Reference:
-            ```
+            ```markdown
             {brd_template}
             ```
             
@@ -138,7 +120,7 @@ class BRDGeneratorService:
             Include these insights in your BRD to make it more comprehensive and realistic.
 
 
-            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE. USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
+            **NOTE: ENSURE FINAL OUTPUT ONLY CONTAINS MARKDOWN RESULT AND NOTHING ELSE.YOU MUST USE (```markdown) and (```) TO START AND END THE MARKDOWN RESULT.**
             """,
             add_datetime_to_instructions=True,
             reasoning=True,
@@ -146,17 +128,53 @@ class BRDGeneratorService:
             debug_mode=ENABLE_DEBUG_MODE,
             markdown=ENABLE_MARKDOWN
         )
+            
+        logger.info(f"Initialized BRD Generator with {self.model_type} model (ID: {self.model_id})")
+
+    async def generate_brd(self, project_details: Dict[str, Any], user_id: str = None) -> Dict[str, Any]:
+        """
+        Generate a comprehensive BRD based on project details.
+        
+        Args:
+            project_details: Dictionary containing project information including:
+                - project_name: Name of the project
+                - project_description: Brief description of the project
+                - start_date: Project start date (dd/mm/yyyy)
+                - end_date: Project end date (dd/mm/yyyy)
+            
+        Returns:
+            Dictionary with BRD generation results, including content
+            
+        Raises:
+            ValueError: If BRD generation fails
+        """
+        logger.info(f"Generating BRD for: {project_details.get('project_name', 'Unnamed Project')}")
+        
+        # Convert project details to string for the prompt
+        project_details_text = json.dumps(project_details, indent=2)
         
         try:
-            brd_response = await brd_agent.arun()
+            brd_response = await self.agent.arun(f"""
+            Project Details:
+            {project_details_text}
+            """, user_id=user_id, session_id=f"{user_id}_brd" if user_id else None)
             brd_content = brd_response.content.strip()
 
             # Extract content between ``` markers using regex
-            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", brd_content, re.DOTALL)
+            match = re.search(r"```(?:markdown)?([\s\S]*?)```\s*$", brd_content, re.MULTILINE)
             if match:
                 brd_content = match.group(1).strip()
-            
+
             project_name = project_details.get('project_name', 'Unnamed Project')
+            self.memory.add_user_memory(user_id=user_id, memory=UserMemory(
+                memory=f"""
+                Project BRD:
+                ```markdown
+                {brd_content}
+                ```
+                """,
+                topics=["BRD", "Business Requirements Document"],
+            ))
             logger.info(f"✅ Successfully generated BRD for {project_name}")
             
             return {
