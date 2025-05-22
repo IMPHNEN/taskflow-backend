@@ -104,6 +104,7 @@ CREATE TABLE mockup (
 );
 
 -- Agno Memory and Storage table
+CREATE SCHEMA IF NOT EXISTS ai;
 CREATE TABLE ai.agent_sessions (
   session_id       VARCHAR PRIMARY KEY,
   user_id          VARCHAR,
