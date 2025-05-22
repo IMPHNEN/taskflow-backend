@@ -12,7 +12,7 @@ async def generate_brd_background(project_id: str, project_data: dict):
             'project_description': project_data['objective'],
             'start_date': project_data['start_date'],
             'end_date': project_data['end_date'],
-        })
+        }, project_id)
         
         if brd_result['status'] == 'success':
             # Update the BRD record with the content and 'completed' status
@@ -31,8 +31,9 @@ async def generate_prd_background(project_id: str, brd_content: str, project_nam
     """Background task to generate PRD"""
     try:
         prd_result = await prd_service.generate_prd(
-            brd_content=brd_content,
-            project_name=project_name
+            brd_content,
+            project_name,
+            project_id
         )
         
         if prd_result['status'] == 'success':
@@ -56,7 +57,7 @@ async def generate_tasks_background(project_id: str, prd_content: str):
             'tasks_generation_status': 'in_progress'
         }).eq('id', project_id).execute()
         
-        task_result = await task_service.generate_tasks(prd_content)
+        task_result = await task_service.generate_tasks(prd_content, project_id)
         
         if 'items' in task_result:
             # Convert LLM generated tasks to task records
@@ -84,7 +85,7 @@ async def generate_tasks_background(project_id: str, prd_content: str):
 async def validate_market_background(project_id: str, project_objective: str):
     """Background task to validate market"""
     try:
-        market_result = await market_validation_service.run_market_validation(project_objective)
+        market_result = await market_validation_service.run_market_validation(project_objective, project_id)
         
         if market_result['status'] == 'success':
             # Update the market research record with the content and 'completed' status
