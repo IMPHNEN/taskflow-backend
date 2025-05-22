@@ -5,10 +5,10 @@ This example demonstrates how to use the BRDGeneratorService to generate
 a Business Requirements Document (BRD) based on project details.
 """
 import asyncio
-import json
 import logging
 import os
 import sys
+from uuid import uuid4
 from typing import Dict, Any
 
 # Add the project root directory to the Python path if running as script
@@ -41,8 +41,12 @@ async def generate_brd(project_details: Dict[str, Any], save_to_file: bool = Tru
     # Initialize the service
     brd_service = BRDGeneratorService()
     
+    # Random UUID
+    project_id = "28cf12ac-2f5e-4dd5-99b6-26a889f42a45"
+    # project_id = str(uuid4())
+
     # Generate BRD
-    result = await brd_service.generate_brd(project_details)
+    result = await brd_service.generate_brd(project_details, project_id)
     
     # Check result
     if result["status"] == "success":
@@ -79,7 +83,6 @@ async def main():
         print(f"BRD Length: {len(result['content'])} characters")
         print(f"Output files:")
         print(f" - {result.get('file_path', 'Not saved with timestamp')}")
-        print(f" - examples/output_{result['project_name'].lower()}_brd.md")
         
         # Print the first 200 characters as preview
         preview = result['content'][:200] + "..." if len(result['content']) > 200 else result['content']

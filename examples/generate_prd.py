@@ -8,6 +8,7 @@ import asyncio
 import logging
 import os
 import sys
+from uuid import uuid4
 from typing import Dict, Any
 
 # Add the project root directory to the Python path if running as script
@@ -40,9 +41,13 @@ async def generate_prd(brd_content: str, project_name: str, save_to_file: bool =
     
     # Initialize the service
     prd_service = PRDGeneratorService()
+
+    # Random UUID
+    project_id = "28cf12ac-2f5e-4dd5-99b6-26a889f42a45"
+    # project_id = str(uuid4())
     
     # Generate PRD
-    result = await prd_service.generate_prd(brd_content, project_name)
+    result = await prd_service.generate_prd(brd_content, project_name, project_id)
     
     # Check result
     if result["status"] == "success":
@@ -123,7 +128,6 @@ This project includes developing an AI-powered tool that can analyze PRD documen
         print(f"PRD Length: {len(result['content'])} characters")
         print(f"Output files:")
         print(f" - {result.get('file_path', 'Not saved with timestamp')}")
-        print(f" - examples/output_{result['project_name'].lower()}_prd.md")
         
         # Print the first 200 characters as preview
         preview = result['content'][:200] + "..." if len(result['content']) > 200 else result['content']

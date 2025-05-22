@@ -8,6 +8,7 @@ import asyncio
 import logging
 import os
 import sys
+from uuid import uuid4
 from typing import Dict, Any
 
 # Add the project root directory to the Python path if running as script
@@ -37,12 +38,15 @@ async def run_market_validation(project_description: str, save_report: bool = Tr
     """
     logger.info("Starting market validation")
     
+    # Random UUID
+    project_id = "28cf12ac-2f5e-4dd5-99b6-26a889f42a45"
+    # project_id = str(uuid4())
     # Initialize the service
     market_service = MarketValidationService()
     
     try:
         # Run market validation
-        result = await market_service.run_market_validation(project_description)
+        result = await market_service.run_market_validation(project_description, project_id)
         
         logger.info(f"✅ Market validation {'completed successfully' if result['status'] == 'success' else 'failed'}")
         

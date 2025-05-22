@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import sys
+from uuid import uuid4
 from typing import Dict, Any
 
 # Add the project root directory to the Python path if running as script
@@ -40,10 +41,14 @@ async def generate_tasks(prd_content: str, save_file: bool = True) -> Dict[str, 
     
     # Initialize the service
     task_service = TaskGeneratorService()
+
+    # Random UUID
+    project_id = "28cf12ac-2f5e-4dd5-99b6-26a889f42a45"
+    # project_id = str(uuid4())
     
     try:
         # Generate tasks
-        result = await task_service.generate_tasks(prd_content)
+        result = await task_service.generate_tasks(prd_content, project_id)
         
         logger.info(f"✅ Task generation successful: {len(result.get('items', []))} tasks")
         

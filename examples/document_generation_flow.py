@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import sys
+from uuid import uuid4
 from typing import Dict, Any
 
 # Add the project root directory to the Python path if running as script
@@ -44,7 +45,8 @@ async def run_full_document_flow(project_details: Dict[str, Any]) -> Dict[str, A
     """
     results = {}
     project_name = project_details.get('project_name', 'Unnamed Project')
-    
+    project_id = str(uuid4())
+
     # Store output paths
     output_paths = {
         "brd": None,
@@ -58,7 +60,7 @@ async def run_full_document_flow(project_details: Dict[str, Any]) -> Dict[str, A
     # Step 1: Generate BRD
     logger.info("Step 1: Generating Business Requirements Document (BRD)")
     brd_service = BRDGeneratorService()
-    brd_result = await brd_service.generate_brd(project_details)
+    brd_result = await brd_service.generate_brd(project_details, project_id)
     
     if brd_result["status"] != "success":
         logger.error(f"❌ BRD generation failed: {brd_result.get('error', 'Unknown error')}")
@@ -74,7 +76,7 @@ async def run_full_document_flow(project_details: Dict[str, Any]) -> Dict[str, A
     # Step 2: Generate PRD from BRD
     logger.info("Step 2: Generating Product Requirements Document (PRD)")
     prd_service = PRDGeneratorService()
-    prd_result = await prd_service.generate_prd(brd_result["content"], project_name)
+    prd_result = await prd_service.generate_prd(brd_result["content"], project_name, project_id)
     
     if prd_result["status"] != "success":
         logger.error(f"❌ PRD generation failed: {prd_result.get('error', 'Unknown error')}")
@@ -97,7 +99,7 @@ async def run_full_document_flow(project_details: Dict[str, Any]) -> Dict[str, A
     task_service = TaskGeneratorService()
     
     try:
-        task_result = await task_service.generate_tasks(prd_result["content"])
+        task_result = await task_service.generate_tasks(prd_result["content"], project_id)
         
         # Save tasks with timestamp
         tasks_path = save_to_file(task_result, f"{project_name.lower()}_tasks")
@@ -125,7 +127,7 @@ async def run_full_document_flow(project_details: Dict[str, Any]) -> Dict[str, A
     market_service = MarketValidationService()
     
     try:
-        market_result = await market_service.run_market_validation(project_details["project_description"])
+        market_result = await market_service.run_market_validation(project_details["project_description"], project_id)
         results["market_validation"] = market_result
         
         # The service already saves the report with timestamp, just grab the path
