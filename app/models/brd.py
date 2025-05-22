@@ -11,7 +11,7 @@ class AiGenerationStatus(str, Enum):
 
 class BRD(BaseModel):
     id: Optional[UUID4] = None
-    project_id: Optional[UUID4] = None
+    # project_id: Optional[UUID4] = None
     brd_markdown: Optional[str] = None
     status: Optional[AiGenerationStatus] = None
     created_at: Optional[datetime] = None
