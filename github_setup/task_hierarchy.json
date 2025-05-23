@@ -1,202 +1,262 @@
-{
-  "epics": [
-    {
-      "title": "User Management Epic",
-      "features": [
-        {
-          "title": "User Registration Feature",
-          "tasks": [
-            {
-              "id": "task_001",
-              "title": "Design User Registration Flow",
-              "description": "Design a user-friendly registration flow with email and social media account options.",
-              "estimated_hours": 4,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_002",
-              "title": "Implement User Registration API",
-              "description": "Develop a RESTful API for user registration with email and social media account options.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_001"
-              ]
-            },
-            {
-              "id": "task_003",
-              "title": "Develop User Registration Frontend",
-              "description": "Create a user-friendly frontend for user registration with validation and error handling.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_002"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "User Login Feature",
-          "tasks": [
-            {
-              "id": "task_004",
-              "title": "Design User Login Flow",
-              "description": "Design a user-friendly login flow with email and social media account options.",
-              "estimated_hours": 4,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_005",
-              "title": "Implement User Login API",
-              "description": "Develop a RESTful API for user login with email and social media account options.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_004"
-              ]
-            },
-            {
-              "id": "task_006",
-              "title": "Develop User Login Frontend",
-              "description": "Create a user-friendly frontend for user login with validation and error handling.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_005"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Chatbot Interface Epic",
-      "features": [
-        {
-          "title": "Health Information Retrieval Feature",
-          "tasks": [
-            {
-              "id": "task_007",
-              "title": "Design Chatbot Conversation Flow",
-              "description": "Design a conversational flow for the chatbot to retrieve and provide relevant health information.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_008",
-              "title": "Implement Chatbot API",
-              "description": "Develop a RESTful API for the chatbot to retrieve and provide relevant health information.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": [
-                "task_007"
-              ]
-            },
-            {
-              "id": "task_009",
-              "title": "Develop Chatbot Frontend",
-              "description": "Create a user-friendly frontend for the chatbot with conversational interface and feedback mechanisms.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": [
-                "task_008"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Health Tracking Epic",
-      "features": [
-        {
-          "title": "Health Metrics Tracking Feature",
-          "tasks": [
-            {
-              "id": "task_010",
-              "title": "Design Health Metrics Tracking Flow",
-              "description": "Design a user-friendly flow for tracking health metrics with goals and reminders.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": []
-            },
-            {
-              "id": "task_011",
-              "title": "Implement Health Metrics Tracking API",
-              "description": "Develop a RESTful API for tracking health metrics with goals and reminders.",
-              "estimated_hours": 12,
-              "priority": "medium",
-              "dependencies": [
-                "task_010"
-              ]
-            },
-            {
-              "id": "task_012",
-              "title": "Develop Health Metrics Tracking Frontend",
-              "description": "Create a user-friendly frontend for tracking health metrics with visualization and insights.",
-              "estimated_hours": 16,
-              "priority": "medium",
-              "dependencies": [
-                "task_011"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Security and Performance Epic",
-      "features": [
-        {
-          "title": "Security Feature",
-          "tasks": [
-            {
-              "id": "task_013",
-              "title": "Implement Security Measures",
-              "description": "Implement security measures such as encryption, authentication, and access control.",
-              "estimated_hours": 16,
-              "priority": "high",
-              "dependencies": []
-            },
-            {
-              "id": "task_014",
-              "title": "Conduct Security Testing",
-              "description": "Conduct security testing and vulnerability assessment.",
-              "estimated_hours": 8,
-              "priority": "high",
-              "dependencies": [
-                "task_013"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Performance Optimization Feature",
-          "tasks": [
-            {
-              "id": "task_015",
-              "title": "Optimize Database Queries",
-              "description": "Optimize database queries for better performance.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": []
-            },
-            {
-              "id": "task_016",
-              "title": "Implement Caching Mechanisms",
-              "description": "Implement caching mechanisms for frequently accessed data.",
-              "estimated_hours": 8,
-              "priority": "medium",
-              "dependencies": [
-                "task_015"
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+[
+	{
+		"id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"title": "TeleCare Connect Platform Development",
+		"position": 1,
+		"parent_id": null,
+		"task_type": "epic",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Develop a HIPAA-compliant telemedicine platform integrating real-time vital-sign data from home devices.",
+		"story_point": 0
+	},
+	{
+		"id": "ffce1184-8fcd-49ed-af63-cf77093147fc",
+		"title": "HIPAA Compliance",
+		"position": 1,
+		"parent_id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"task_type": "feature",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure all data handling and storage comply with HIPAA regulations.",
+		"story_point": 0
+	},
+	{
+		"id": "94ab21a3-6998-431b-b825-ee9ff5a52e19",
+		"title": "Implement Encryption for Data Transmissions",
+		"position": 1,
+		"parent_id": "ffce1184-8fcd-49ed-af63-cf77093147fc",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure all data transmissions are encrypted using industry-standard protocols.",
+		"story_point": 0
+	},
+	{
+		"id": "7c073c83-fe86-4b47-8cc0-d8ce3f34ed09",
+		"title": "Implement Access Controls",
+		"position": 2,
+		"parent_id": "ffce1184-8fcd-49ed-af63-cf77093147fc",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Implement access controls to restrict data access to authorized personnel only.",
+		"story_point": 0
+	},
+	{
+		"id": "81e9563e-33dd-4b7a-b8aa-af7648016d8d",
+		"title": "Conduct Regular Audits",
+		"position": 3,
+		"parent_id": "ffce1184-8fcd-49ed-af63-cf77093147fc",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Conduct regular audits to ensure ongoing compliance with HIPAA regulations.",
+		"story_point": 0
+	},
+	{
+		"id": "39e95d86-f873-4807-8b17-a1f34b7da15d",
+		"title": "Certify Data Storage Solutions",
+		"position": 4,
+		"parent_id": "ffce1184-8fcd-49ed-af63-cf77093147fc",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure data storage solutions are HIPAA-certified.",
+		"story_point": 0
+	},
+	{
+		"id": "679cb7c8-8d0a-4517-8bf6-e74d14f096c7",
+		"title": "Real-time Vital-Sign Data Integration",
+		"position": 2,
+		"parent_id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"task_type": "feature",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Integrate data from home devices like blood pressure cuffs and pulse oximeters.",
+		"story_point": 0
+	},
+	{
+		"id": "a20c56b4-614a-4788-be32-2b7e1a093e53",
+		"title": "Integrate Data from Supported Home Devices",
+		"position": 1,
+		"parent_id": "679cb7c8-8d0a-4517-8bf6-e74d14f096c7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure data from supported home devices is integrated in real-time.",
+		"story_point": 0
+	},
+	{
+		"id": "bb67cd09-03f3-4956-8992-f6778f75bb64",
+		"title": "Reflect Data Updates in Real-time",
+		"position": 2,
+		"parent_id": "679cb7c8-8d0a-4517-8bf6-e74d14f096c7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure data updates are reflected in the platform within 5 seconds of measurement.",
+		"story_point": 0
+	},
+	{
+		"id": "0989769e-987a-487a-afb3-8939e040fcb5",
+		"title": "Support Integration with Home Medical Devices",
+		"position": 3,
+		"parent_id": "679cb7c8-8d0a-4517-8bf6-e74d14f096c7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure the platform supports integration with at least five different home medical devices.",
+		"story_point": 0
+	},
+	{
+		"id": "fc0a62a3-6d7d-4bdd-9a7d-a4eda910cf65",
+		"title": "Ensure Secure Data Transmission",
+		"position": 4,
+		"parent_id": "679cb7c8-8d0a-4517-8bf6-e74d14f096c7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure data transmission is secure and compliant with HIPAA regulations.",
+		"story_point": 0
+	},
+	{
+		"id": "bde2d870-3acc-43ed-823e-276c078f29e7",
+		"title": "Custom Alerts for Clinicians",
+		"position": 3,
+		"parent_id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"task_type": "feature",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Allow clinicians to set custom alerts based on patient data trends.",
+		"story_point": 0
+	},
+	{
+		"id": "9a2bebd7-84d9-4209-8a6a-9046a2059e6b",
+		"title": "Set Custom Alert Thresholds",
+		"position": 1,
+		"parent_id": "bde2d870-3acc-43ed-823e-276c078f29e7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Enable clinicians to set custom alert thresholds for each patient.",
+		"story_point": 0
+	},
+	{
+		"id": "dbea2085-22b2-42ea-9f35-7ee13f3cc558",
+		"title": "Trigger Alerts Based on Data Trends",
+		"position": 2,
+		"parent_id": "bde2d870-3acc-43ed-823e-276c078f29e7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Ensure alerts are triggered based on real-time data trends.",
+		"story_point": 0
+	},
+	{
+		"id": "19f7efdd-4d02-4fee-aadf-397a7760e47c",
+		"title": "Deliver Alerts to Clinicians",
+		"position": 3,
+		"parent_id": "bde2d870-3acc-43ed-823e-276c078f29e7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Deliver alerts to clinicians via the platform and optional email/SMS notifications.",
+		"story_point": 0
+	},
+	{
+		"id": "01df3661-5933-4339-964c-53629876fd4c",
+		"title": "Log Alert History",
+		"position": 4,
+		"parent_id": "bde2d870-3acc-43ed-823e-276c078f29e7",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Log and make alert history accessible for review.",
+		"story_point": 0
+	},
+	{
+		"id": "01475a48-dd5b-415f-b5b6-ddc2234ad338",
+		"title": "Triage Functionality",
+		"position": 4,
+		"parent_id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"task_type": "feature",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Enable clinicians to triage patients based on incoming data trends.",
+		"story_point": 0
+	},
+	{
+		"id": "1ed0443e-441e-40e7-8120-c5d74e054493",
+		"title": "View Patient List by Urgency",
+		"position": 1,
+		"parent_id": "01475a48-dd5b-415f-b5b6-ddc2234ad338",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Enable clinicians to view a list of patients sorted by the urgency of their vital-sign data trends.",
+		"story_point": 0
+	},
+	{
+		"id": "17439dca-a327-4e87-9cf2-e4e297a43939",
+		"title": "Provide Triage Recommendations",
+		"position": 2,
+		"parent_id": "01475a48-dd5b-415f-b5b6-ddc2234ad338",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Provide recommendations for triage based on predefined criteria.",
+		"story_point": 0
+	},
+	{
+		"id": "0e96905e-cdc8-4496-80fe-1b1dbb98bacd",
+		"title": "Manually Adjust Triage Priorities",
+		"position": 3,
+		"parent_id": "01475a48-dd5b-415f-b5b6-ddc2234ad338",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Enable clinicians to manually adjust triage priorities as needed.",
+		"story_point": 0
+	},
+	{
+		"id": "7b19406d-0551-460e-ac07-082dcbe4eb90",
+		"title": "Log Triage History",
+		"position": 4,
+		"parent_id": "01475a48-dd5b-415f-b5b6-ddc2234ad338",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Log and make triage history accessible for review.",
+		"story_point": 0
+	},
+	{
+		"id": "eb5d5518-b9bc-42ff-8690-f82c77796b90",
+		"title": "Seamless Escalation to In-Person Care",
+		"position": 5,
+		"parent_id": "9c585477-dd05-4f95-a321-d67dd7bd882a",
+		"task_type": "feature",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Provide a smooth transition process from telemedicine to in-person care.",
+		"story_point": 0
+	},
+	{
+		"id": "995e8da0-8b4b-4787-813e-7a420bed4773",
+		"title": "Escalate to In-Person Visits",
+		"position": 1,
+		"parent_id": "eb5d5518-b9bc-42ff-8690-f82c77796b90",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Provide an option to escalate a patient's care to in-person visits.",
+		"story_point": 0
+	},
+	{
+		"id": "ea1baf9a-9368-415f-b5bc-b79b3efc7e18",
+		"title": "Notify In-Person Care Team",
+		"position": 2,
+		"parent_id": "eb5d5518-b9bc-42ff-8690-f82c77796b90",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Trigger a notification to the relevant in-person care team upon escalation.",
+		"story_point": 0
+	},
+	{
+		"id": "3a7cc518-8364-4820-823f-de99690fbbc5",
+		"title": "Integrate with Scheduling Systems",
+		"position": 3,
+		"parent_id": "eb5d5518-b9bc-42ff-8690-f82c77796b90",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Integrate with scheduling systems to book in-person appointments.",
+		"story_point": 0
+	},
+	{
+		"id": "c191cab0-573f-450e-acbc-28b32c39fb8e",
+		"title": "Log Escalation History",
+		"position": 4,
+		"parent_id": "eb5d5518-b9bc-42ff-8690-f82c77796b90",
+		"task_type": "task",
+		"project_id": "c06853cf-556d-4e44-afdd-b7b286eb22e2",
+		"description": "Log and make escalation history accessible for review.",
+		"story_point": 0
+	}
+]

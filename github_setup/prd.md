@@ -1,316 +1,195 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
-## HealthAssistant
+
+## TeleCare Connect
 
 ### Introduction
-The HealthAssistant project aims to develop a retrieval-augmented generation (RAG) chatbot that provides personalized health information and guidance using Groq's LLM capabilities. This PRD is based on the Business Requirements Document (BRD) for the development of the HealthAssistant application, providing technical guidance and details regarding the features to be developed.
+
+The TeleCare Connect project aims to develop a secure, HIPAA-compliant telemedicine platform that integrates real-time vital-sign data from patients' home devices such as blood pressure cuffs and pulse oximeters. This platform will enable clinicians to set custom alerts, triage based on incoming data trends, and seamlessly escalate to in-person care when needed. The project is set to commence on June 1, 2025, and conclude by December 31, 2026.
 
 ### Product Description
-HealthAssistant is a conversational AI platform designed to assist users in navigating complex health topics, offering tailored advice and support. The application will utilize a RAG chatbot, integrating a comprehensive health information database, user registration and profile management system, personalized health guidance and recommendation engine, and an intuitive user interface.
+
+TeleCare Connect is a comprehensive telemedicine platform designed to enhance patient monitoring and care management. The platform will integrate real-time vital-sign data from various home medical devices, allowing clinicians to set custom alerts, triage patients based on data trends, and escalate to in-person care when necessary. The platform will be HIPAA-compliant to ensure patient data security and privacy.
 
 ### Product Objective
-- Enhance user engagement and retention through personalized health guidance
-- Increase the accessibility of reliable health information for a broader audience
-- Improve health literacy and user understanding of complex health topics
-- Establish the HealthAssistant as a trusted source for health information and guidance
-- Achieve a high level of user satisfaction and positive feedback
+
+- Develop a HIPAA-compliant telemedicine platform to ensure patient data security.
+- Integrate real-time vital-sign data from home devices to enhance patient monitoring.
+- Enable clinicians to set custom alerts and triage based on data trends for proactive care management.
+- Facilitate seamless escalation to in-person care when necessary to improve patient outcomes.
 
 ### Target User
-**1. Users:**
-- Demographics: Individuals of all ages, with a focus on those seeking health information and guidance
-- Psychographics: People interested in taking control of their health, seeking trustworthy advice, and valuing convenience
-- Goals: To find accurate and personalized health information, manage their health effectively, and improve their overall well-being
-- Behaviors: Active seekers of health information, likely to engage with health-related content, and interested in using technology to manage their health
 
-**2. Healthcare Providers:**
-- Demographics: Medical professionals, including doctors, nurses, and healthcare administrators
-- Psychographics: Individuals committed to providing high-quality patient care, staying updated on the latest medical research, and interested in leveraging technology to enhance patient outcomes
-- Goals: To provide accurate and reliable health information, support patients in managing their health, and stay informed about the latest medical advancements
-- Behaviors: Regularly seeking updates on medical research, engaging with patients through digital platforms, and interested in using technology to streamline clinical workflows
+- **Clinicians and Healthcare Providers**: Age 25-65, with medical degrees and licenses, working in hospitals, clinics, and private practices.
+- **Patients**: Age 18-90, using home medical devices for monitoring vital signs, with varying levels of technical proficiency.
+- **IT and Security Teams**: Age 25-55, responsible for maintaining the platform's security and compliance.
+- **Project Managers and Developers**: Age 25-50, involved in the development and management of the platform.
 
 ### Functional Requirements
 
-#### 5.1 User Management
+#### HIPAA Compliance
 
-##### 5.1.1 User Registration
-- **Priority**: High
-- Description: Users can register using email or social media accounts
-- **User Story**: As a new user, I want to register with my email or social media account so that I can use the HealthAssistant app.
-- **Acceptance Criteria**:
-  - User can register using email or social media account
-  - The system sends a verification code via email or SMS
-  - Users can choose their preferred language and communication settings
-  - The system stores user data securely
-  - User receives notification of successful registration
+| Priority | Requirement      |
+| -------- | ---------------- |
+| High     | HIPAA Compliance |
 
-##### 5.1.2 User Login
-- **Priority**: High
-- Description: User can login with email or social media account
-- **User Story**: As a registered user, I want to login with my email or social media account so that I can access my account.
-- **Acceptance Criteria**:
-  - User can login with email or social media account
-  - The system provides a "forgot password" feature
-  - The system displays a clear error message if login fails
-  - The system provides a "remember me" option
-  - The system records the last login time
+**Description**: Ensure all data handling and storage comply with HIPAA regulations.
 
-##### 5.1.3 Profile Management
-- **Priority**: Medium
-- Description: Users can manage their profile information
-- **User Story**: As a user, I want to manage my profile information so that my data is always up to date.
-- **Acceptance Criteria**:
-  - Users can change their name, profile picture, and contact information
-  - User can add multiple health profiles (e.g., for family members)
-  - User can change password
-  - System confirms data changes with verification
+**User Story**: As a healthcare provider, I want to ensure that all patient data is handled and stored in compliance with HIPAA regulations so that patient privacy and security are maintained.
 
-#### 5.2 Chatbot Interface
+**Acceptance Criteria**:
 
-##### 5.2.1 Health Information Retrieval
-- **Priority**: High
-- Description: Chatbot can retrieve and provide relevant health information
-- **User Story**: As a user, I want to ask the chatbot health-related questions so that I can get accurate and reliable information.
-- **Acceptance Criteria**:
-  - Chatbot can understand and respond to user queries
-  - Chatbot provides relevant and accurate health information
-  - Chatbot can handle follow-up questions and conversations
-  - Chatbot can provide personalized guidance based on user input
-  - Chatbot can escalate complex queries to human healthcare professionals
+- All data transmissions are encrypted using industry-standard protocols.
+- Access controls are implemented to restrict data access to authorized personnel only.
+- Regular audits are conducted to ensure ongoing compliance.
+- Data storage solutions are HIPAA-certified.
 
-##### 5.2.2 Symptom Checker
-- **Priority**: Medium
-- Description: Chatbot can help users identify potential health issues
-- **User Story**: As a user, I want to use the symptom checker so that I can identify potential health issues and seek medical attention if necessary.
-- **Acceptance Criteria**:
-  - Chatbot can ask relevant questions to identify symptoms
-  - Chatbot can provide possible causes and recommendations for further action
-  - Chatbot can provide resources for users to learn more about their symptoms
-  - Chatbot can encourage users to consult with a healthcare professional if necessary
+#### Real-time Vital-Sign Data Integration
 
-##### 5.2.3 Appointment Scheduling
-- **Priority**: Medium
-- Description: Chatbot can integrate with healthcare providers for appointment scheduling
-- **User Story**: As a user, I want to schedule an appointment with a healthcare provider so that I can receive medical attention.
-- **Acceptance Criteria**:
-  - Chatbot can provide a list of available healthcare providers
-  - Chatbot can allow users to schedule appointments with healthcare providers
-  - Chatbot can send reminders and notifications for upcoming appointments
-  - Chatbot can provide resources for users to prepare for their appointments
+| Priority | Requirement                           |
+| -------- | ------------------------------------- |
+| High     | Real-time Vital-Sign Data Integration |
 
-#### 5.3 Health Tracking
+**Description**: Integrate data from home devices like blood pressure cuffs and pulse oximeters.
 
-##### 5.3.1 Health Metrics Tracking
-- **Priority**: Medium
-- Description: Users can track their health metrics and progress over time
-- **User Story**: As a user, I want to track my health metrics so that I can monitor my progress and make informed decisions about my health.
-- **Acceptance Criteria**:
-  - Users can track various health metrics (e.g., blood pressure, blood glucose, weight)
-  - Users can view their progress over time
-  - Users can set goals and reminders for health metrics
-  - System provides insights and recommendations based on user data
+**User Story**: As a patient, I want my vital-sign data to be automatically sent to the platform so that my clinician can monitor my health in real-time.
 
-##### 5.3.2 Wearable Integration
-- **Priority**: Low
-- Description: Optional integration with wearables for enhanced health tracking
-- **User Story**: As a user, I want to integrate my wearable device with the HealthAssistant app so that I can track my health metrics more accurately.
-- **Acceptance Criteria**:
-  - System can integrate with popular wearable devices
-  - System can collect and analyze data from wearable devices
-  - System can provide insights and recommendations based on wearable data
+**Acceptance Criteria**:
 
-#### 5.4 Notifications and Reminders
+- Data from supported home devices is integrated in real-time.
+- Data updates are reflected in the platform within 5 seconds of measurement.
+- The platform supports integration with at least five different home medical devices.
+- Data transmission is secure and compliant with HIPAA regulations.
 
-##### 5.4.1 Push Notifications
-- **Priority**: Medium
-- Description: System sends notifications for important health reminders
-- **User Story**: As a user, I want to receive notifications for important health reminders so that I can stay on track with my health goals.
-- **Acceptance Criteria**:
-  - System sends notifications for appointment reminders, medication reminders, and health goal reminders
-  - Users can customize notification settings
-  - System can send notifications for new health information and updates
+#### Custom Alerts for Clinicians
 
-##### 5.4.2 In-App Notifications
-- **Priority**: Medium
-- Description: System provides in-app notifications for health updates and reminders
-- **User Story**: As a user, I want to receive in-app notifications for health updates and reminders so that I can stay informed and engaged with my health.
-- **Acceptance Criteria**:
-  - System provides in-app notifications for new health information, appointment reminders, and health goal reminders
-  - Users can customize in-app notification settings
-  - System can display notifications in a dedicated notification center
+| Priority | Requirement                  |
+| -------- | ---------------------------- |
+| High     | Custom Alerts for Clinicians |
+
+**Description**: Allow clinicians to set custom alerts based on patient data trends.
+
+**User Story**: As a clinician, I want to set custom alerts for my patients based on their vital-sign data so that I can intervene proactively when necessary.
+
+**Acceptance Criteria**:
+
+- Clinicians can set custom alert thresholds for each patient.
+- Alerts are triggered based on real-time data trends.
+- Alerts are delivered to clinicians via the platform and optional email/SMS notifications.
+- Alert history is logged and accessible for review.
+
+#### Triage Functionality
+
+| Priority | Requirement          |
+| -------- | -------------------- |
+| High     | Triage Functionality |
+
+**Description**: Enable clinicians to triage patients based on incoming data trends.
+
+**User Story**: As a clinician, I want to triage my patients based on their vital-sign data trends so that I can prioritize care effectively.
+
+**Acceptance Criteria**:
+
+- Clinicians can view a list of patients sorted by the urgency of their vital-sign data trends.
+- The platform provides recommendations for triage based on predefined criteria.
+- Clinicians can manually adjust triage priorities as needed.
+- Triage history is logged and accessible for review.
+
+#### Seamless Escalation to In-Person Care
+
+| Priority | Requirement                           |
+| -------- | ------------------------------------- |
+| High     | Seamless Escalation to In-Person Care |
+
+**Description**: Provide a smooth transition process from telemedicine to in-person care.
+
+**User Story**: As a clinician, I want to easily escalate a patient's care to in-person visits when necessary so that they receive the appropriate level of care.
+
+**Acceptance Criteria**:
+
+- The platform provides an option to escalate a patient's care to in-person visits.
+- Escalation triggers a notification to the relevant in-person care team.
+- The platform integrates with scheduling systems to book in-person appointments.
+- Escalation history is logged and accessible for review.
 
 ### Non-Functional Requirements
 
-#### 6.1 Performance
-- Page load time is less than 2 seconds with normal internet connection
-- Maximum API response time of 500ms
-- System can handle at least 1000 simultaneous conversations
-- Database can store up to 1 million user profiles
-- Optimized bandwidth usage for users with limited connection
-- Image optimization to speed up loading time
-- Implementation of caching to improve performance
-- Automatic database backup every 6 hours
+#### Performance
 
-#### 6.2 Security
-- Implementation of HTTPS for all communications
-- Encryption of user and health data with AES-256
-- Implementation of token-based authentication
-- Protection against SQL injection, XSS, and CSRF
-- Logging of activity logs for sensitive actions
-- Strong password policy (minimum 8 characters, combination of letters, numbers, symbols)
-- Account blocking after multiple failed login attempts
-- Compliance with HIPAA security standards for health data
+- The system should support at least 10,000 concurrent users without performance degradation.
+- Real-time data from home devices should be updated within 5 seconds of measurement.
+- The system should have a response time of less than 2 seconds for all user interactions.
+- The platform should handle high volumes of data with minimal latency.
 
-#### 6.3 Scalability
-- Microservices architecture for easy scaling
-- Load balancing implementation for load distribution
-- Auto-scaling based on server load
-- Use of CDN for static content
-- System can handle up to 100% increase in users in 6 months
-- Distributed database to handle data growth
+#### Security
 
-#### 6.4 Availability
-- Uptime of at least 99.9% (less than 8.76 hours of downtime per year)
-- Implementation of failover and redundancy
-- Scheduled off-peak maintenance
-- Automatic notification of system issues
-- 24/7 system performance monitoring
-- Disaster recovery plan with RPO < 1 hour and RTO < 4 hours
+- All data transmissions must be encrypted using industry-standard protocols such as TLS/SSL.
+- Access controls must be implemented to ensure only authorized personnel can view patient data.
+- The system must implement multi-factor authentication (MFA) for all users.
+- Regular security audits must be conducted to identify and mitigate potential vulnerabilities.
+- The platform must comply with all relevant data protection regulations, including HIPAA.
 
-#### 6.5 Usability
-- Intuitive and easy-to-use user interface
-- Responsive design for all screen sizes
-- Support for users with disabilities (accessibility)
-- User guides and tooltips for complex features
-- Consistency of design throughout the application
-- Minimal training time for new users
-- Support for swipe gestures in mobile apps
-- Fast and accurate search features
+#### Usability
 
-#### 6.6 Compatibility
-- Compatible with major browsers (Chrome, Firefox, Safari, Edge)
-- Compatible with desktop operating systems (Windows, MacOS, Linux)
-- Compatible with mobile operating systems (Android 7.0+, iOS 11.0+)
-- Support for different screen resolutions
-- Automatic adaptation to screen orientation (portrait/landscape)
-- Support for dark mode
+- The user interface should be intuitive and easy to navigate for both patients and clinicians.
+- The platform should provide clear instructions and help resources for users.
+- The system should be accessible to users with disabilities, adhering to WCAG 2.1 standards.
+- The platform should support multiple languages to cater to a diverse user base.
 
-#### 6.7 Maintenance
-- Complete code documentation
-- Modular architecture for easy maintenance
-- Automated testing (unit tests, integration tests)
-- Versioning for API
-- Regular updates without service interruption
-- Monitoring system for performance and errors
+#### Reliability
 
-#### 6.8 Internationalization
-- Support for English as the primary language
-- Preparation for additional language support in the future
-- Time, date, and currency formats according to international standards
-- Support for currency conversion (optional)
+- The system should have an uptime of at least 99.9%.
+- Regular backups should be performed to ensure data integrity and availability.
+- The platform should have redundancy measures in place to prevent data loss.
+- The system should have a disaster recovery plan to ensure continuity of service in case of major disruptions.
+
+#### Scalability
+
+- The system must be able to scale horizontally to handle increased load and user base.
+- The architecture should support adding more servers and databases as needed.
+- The platform should be designed to handle at least 10TB of data.
+- The system should be able to scale vertically by upgrading hardware resources as needed.
+
+#### Compatibility
+
+- The platform should be compatible with major web browsers, including Chrome, Firefox, Safari, and Edge.
+- The system should support integration with various home medical devices via standard APIs.
+- The platform should be compatible with mobile devices, providing a responsive design for both iOS and Android.
+- The system should support integration with third-party services for additional functionality, such as scheduling and notifications.
+
+#### Maintenance
+
+- The system should be designed for ease of maintenance and updates.
+- The platform should have a modular architecture to allow for independent updates of components.
+- The system should have automated monitoring and alerting for potential issues.
+- The platform should have a documented process for regular maintenance and updates.
 
 ### User Interface Requirements
 
-#### 7.1 Home Page
-- Introduction to the HealthAssistant app
-- Call-to-action to register or login
-- Featured health topics and resources
-- User testimonials and reviews
-
-#### 7.2 Chatbot Interface
-- Conversational interface for users to interact with the chatbot
-- Clear and concise responses from the chatbot
-- Ability for users to ask follow-up questions and engage in conversation
-- Visual indicators for chatbot responses (e.g., loading animations, response bubbles)
-
-#### 7.3 Health Profile Page
-- User health profile information (e.g., medical history, allergies, medications)
-- Ability for users to edit and update their health profile
-- Clear and concise display of user health data
-- Visual indicators for health metrics and goals (e.g., progress bars, charts)
-
-#### 7.4 Appointment Scheduling Page
-- List of available healthcare providers
-- Ability for users to schedule appointments with healthcare providers
-- Clear and concise display of appointment details (e.g., date, time, location)
-- Visual indicators for appointment reminders and notifications
+- **Login Screen**: Secure login interface with multi-factor authentication.
+- **Dashboard**: Overview of patient vital-sign data, alerts, and triage status.
+- **Patient Profile**: Detailed view of a patient's vital-sign data history, alerts, and care plan.
+- **Alert Management**: Interface for clinicians to set and manage custom alerts.
+- **Triage Interface**: List of patients sorted by triage priority, with options to adjust priorities.
+- **Escalation Process**: Interface for escalating a patient's care to in-person visits, with integration to scheduling systems.
+- **Help and Support**: Accessible help resources, including FAQs, tutorials, and contact information for support.
 
 ### Technical Requirements
 
-#### 8.1 System Architecture
-- Microservices-based architecture
-- RESTful API for communication between front-end and back-end
-- Single page application (SPA) for front-end
-- Relational database for structured data
-- NoSQL database for unstructured data (e.g., chatbot conversations, user feedback)
-
-#### 8.2 Technology
-- Front-end: React.js, React Native (for mobile apps)
-- Back-end: Node.js/Express.js or Django/Python
-- Database: PostgreSQL, MongoDB
-- Caching: Redis
-- Search Engine: Elasticsearch
-- Message Queue: RabbitMQ
-- CDN: Cloudflare or AWS CloudFront
-- Hosting: AWS, Google Cloud, or Azure
+- **Frontend**: React.js with TypeScript for a responsive and dynamic user interface.
+- **Backend**: Node.js with Express for a robust and scalable server-side infrastructure.
+- **Database**: PostgreSQL for reliable and secure data storage.
+- **Cloud Infrastructure**: AWS for scalable and secure cloud hosting.
+- **CI/CD**: GitHub Actions for automated testing, integration, and deployment.
+- **Security**: Implementation of encryption, access controls, and regular security audits.
+- **API Integration**: RESTful APIs for integration with home medical devices and third-party services.
 
 ### Project Budget and Limitations
-- Project Budget: $1,000,000
-- Timeframe: 9 months
-- Development Team: 10 people (1 Project Manager, 2 Backend Developers, 2 Frontend Developers, 1 UI/UX Designer, 1 DevOps Engineer, 1 QA Engineer, 1 Chatbot Developer, 1 Healthcare Consultant)
+
+- **Budget**: The total budget for the project is $5,000,000, with contingencies for unforeseen costs.
+- **Limitations**: The project must be completed within the timeline of June 1, 2025, to December 31, 2026. Resources include a team of 20 developers and 5 project managers, with external consultants for HIPAA compliance and security audits.
 
 ### Project Acceptance Criteria
-- All high and medium priority functional requirements are met
-- Non-functional requirements are met, especially related to performance and security
-- User testing with a minimum of 100 users shows an 80% satisfaction rate
-- Application can handle a minimum of 1000 simultaneous conversations without performance degradation
-- Full documentation available (user guide, technical documentation, API documentation)
-- Passed third-party security testing
 
-### Schedule and Milestones
-
-#### Milestone 1: Design and Planning (1 month)
-- Requirements finalization
-- UI/UX design
-- Database design
-- Design approval
-
-#### Milestone 2: Initial Development (3 months)
-- Basic feature development (user management, chatbot interface, health information retrieval)
-- Integration with healthcare providers
-- Alpha testing
-
-#### Milestone 3: Advanced Development (3 months)
-- Additional feature development (symptom checker, appointment scheduling, health tracking)
-- Chatbot development and training
-- Beta testing
-- Performance optimization
-
-#### Milestone 4: Finalize and Launch (2 months)
-- User testing
-- Bug fixes
-- Final optimization
-- Documentation
-- Launch
-
-### Risk and Mitigation
-
-#### Technical Risks
-- Risks: Integration issues with healthcare providers
-  Mitigation: Start integration early, prepare alternative integration methods
-- Risk: Slow performance under high load
-  Mitigation: Load testing early on, design scalable architecture
-
-#### Business Risk
-- Risk: Lack of adoption from users
-  Mitigation: Develop a robust marketing strategy, offer incentives for early adopters
-- Risk: Competition with established health and wellness platforms
-  Mitigation: Focus on unique features and benefits, develop strategic partnerships with healthcare providers
-
-### Glossary
-- RAG: Retrieval-Augmented Generation
-- LLM: Large Language Model
-- HIPAA: Health Insurance Portability and Accountability Act
-- API: Application Programming Interface
-- CDN: Content Delivery Network
-- SPA: Single Page Application
-- RPO: Recovery Point Objective
-- RTO: Recovery Time Objective
+- Successful integration and data transmission from at least five different home medical devices.
+- Achievement of HIPAA compliance certification.
+- Positive feedback from clinician beta testing on usa...
