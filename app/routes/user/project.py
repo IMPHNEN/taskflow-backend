@@ -9,7 +9,8 @@ from ...utils.background_tasks import (
     generate_brd_background,
     generate_prd_background,
     generate_tasks_background,
-    validate_market_background
+    validate_market_background,
+    setup_github_repository_background
 )
 
 router = APIRouter(
@@ -133,7 +134,7 @@ async def generate_brd(project_id: str, background_tasks: BackgroundTasks, user:
     if brd_record and brd_record.data['status'] != 'failed':
         return {
             "message": f"BRD exists with status: {brd_record.data['status']}",
-            "content": brd_record.data.get('brd_markdown', ''),
+            "content": brd_record.data.get('brd_markdown', None),
             "status": brd_record.data['status']
         }
     
@@ -154,7 +155,7 @@ async def generate_brd(project_id: str, background_tasks: BackgroundTasks, user:
     # Return immediately with in_progress status
     return {
         "message": "BRD generation started",
-        "content": "",
+        "content": None,
         "status": "in_progress"
     }
 
@@ -174,7 +175,7 @@ async def generate_prd(project_id: str, background_tasks: BackgroundTasks, user:
     if prd_record and prd_record.data['status'] != 'failed':
         return {
             "message": f"PRD exists with status: {prd_record.data['status']}",
-            "content": prd_record.data.get('prd_markdown', ''),
+            "content": prd_record.data.get('prd_markdown', None),
             "status": prd_record.data['status']
         }
     
@@ -206,7 +207,7 @@ async def generate_prd(project_id: str, background_tasks: BackgroundTasks, user:
     # Return immediately with in_progress status
     return {
         "message": "PRD generation started",
-        "content": "",
+        "content": None,
         "status": "in_progress"
     }
 
@@ -286,7 +287,7 @@ async def validate_market_fit(project_id: str, background_tasks: BackgroundTasks
     if market_record and market_record.data['status'] != 'failed':
         return {
             "message": f"Market validation exists with status: {market_record.data['status']}",
-            "content": market_record.data.get('report_markdown', ''),
+            "content": market_record.data.get('report_markdown', None),
             "status": market_record.data['status']
         }
     
@@ -311,13 +312,13 @@ async def validate_market_fit(project_id: str, background_tasks: BackgroundTasks
     # Return immediately with in_progress status
     return {
         "message": "Market validation started",
-        "content": "",
+        "content": None,
         "status": "in_progress"
     }
 
 @router.post("/{project_id}/setup-repository")
 @handle_exceptions(status_code=500)
-async def setup_project_repository(project_id: str, user: dict = Depends(require_user)):
+async def setup_project_repository(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Setup GitHub repository for project"""
     # Get github access token from user
     github_access_token = get_github_token(user['id'])
@@ -336,14 +337,50 @@ async def setup_project_repository(project_id: str, user: dict = Depends(require
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
     if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
-        
-    # TODO: Implement GitHub repository setup using MCP
-    return {
-        "message": "Repository setup completed",
-        "repository": {
-            "name": "example-project",
-            "url": "https://github.com/username/example-project",
+    
+    # Check if GitHub setup record exists
+    github_record = supabase.table('github_setup').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    # If setup already exists and is not failed, return the existing content
+    if github_record and github_record.data['status'] != 'failed':
+        return {
+            "message": f"GitHub setup exists with status: {github_record.data['status']}",
+            "repository_url": github_record.data.get('repository_url', None),
+            "status": github_record.data['status']
         }
+    
+    # Check PRD and tasks status - Repository can only be set up if PRD is completed and tasks are generated
+    prd_record = supabase.table('prd').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    if not prd_record or prd_record.data['status'] != 'completed':
+        raise HTTPException(status_code=400, detail="PRD must be completed before setting up repository")
+        
+    if project.data.get('tasks_generation_status') != 'completed':
+        raise HTTPException(status_code=400, detail="Tasks must be generated before setting up repository")
+    
+    # Create new record or update failed record to in_progress
+    if not github_record:
+        # Create a new GitHub setup record with status 'in_progress'
+        supabase.table('github_setup').insert({
+            'project_id': project_id,
+            'status': 'in_progress'
+        }).execute()
+    else:
+        # Update the status to 'in_progress'
+        supabase.table('github_setup').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
+    
+    # Add the background task
+    background_tasks.add_task(
+        setup_github_repository_background,
+        project_id,
+        github_access_token
+    )
+    
+    # Return immediately with in_progress status
+    return {
+        "message": "GitHub repository setup started",
+        "repository_url": None,
+        "status": "in_progress"
     }
 
 @router.post("/{project_id}/generate-preview")

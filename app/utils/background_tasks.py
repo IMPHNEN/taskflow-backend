@@ -1,7 +1,7 @@
 """
 Background task functions for AI generation services.
 """
-from ..config import supabase, brd_service, prd_service, task_service, market_validation_service
+from ..config import supabase, brd_service, prd_service, task_service, market_validation_service, github_setup_service
 from .ai_utils import llm_to_tasks
 
 async def generate_brd_background(project_id: str, project_data: dict):
@@ -98,4 +98,45 @@ async def validate_market_background(project_id: str, project_objective: str):
             supabase.table('market_research').update({'status': 'failed'}).eq('project_id', project_id).execute()
     except Exception as e:
         # Update the status to 'failed'
-        supabase.table('market_research').update({'status': 'failed'}).eq('project_id', project_id).execute() 
+        supabase.table('market_research').update({'status': 'failed'}).eq('project_id', project_id).execute()
+
+async def setup_github_repository_background(project_id: str, github_token: str):
+    """Background task to set up GitHub repository"""
+    try:
+        # Get project details and PRD content
+        project = supabase.table('projects').select('*').eq('id', project_id).single().execute()
+        prd = supabase.table('prd').select('*').eq('project_id', project_id).single().execute()
+        
+        if not project.data or not prd.data or prd.data['status'] != 'completed':
+            raise ValueError("Project or PRD not found or PRD not completed")
+        
+        # Update github_setup status to in_progress
+        supabase.table('github_setup').update({
+            'status': 'in_progress'
+        }).eq('project_id', project_id).execute()
+        
+        # Run repository setup
+        result = await github_setup_service.setup_repository(
+            project_details=project.data,
+            prd_content=prd.data['prd_markdown'],
+            github_token=github_token,
+            project_id=project_id
+        )
+        
+        if result['status'] == 'success':
+            # Update github_setup record with results
+            supabase.table('github_setup').update({
+                'repository_url': result['repository_url'],
+                'status': 'completed'
+            }).eq('project_id', project_id).execute()
+        else:
+            # Update status to failed
+            supabase.table('github_setup').update({
+                'status': 'failed'
+            }).eq('project_id', project_id).execute()
+            
+    except Exception as e:
+        # Update status to failed
+        supabase.table('github_setup').update({
+            'status': 'failed'
+        }).eq('project_id', project_id).execute() 
