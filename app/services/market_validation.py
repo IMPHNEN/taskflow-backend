@@ -13,6 +13,7 @@ from agno.models.openai import OpenAIChat
 from agno.models.google import Gemini
 from agno.models.groq import Groq
 from agno.models.mistral import MistralChat
+from agno.models.openai.like import OpenAILike
 from agno.tools.tavily import TavilyTools
 from agno.memory.v2.schema import UserMemory
 
@@ -30,7 +31,9 @@ from .config import (
     MARKET_VALIDATION_MANAGER_MODEL_ID,
     ENABLE_DEBUG_MODE,
     ENABLE_SHOW_TOOL_CALLS,
-    ENABLE_MARKDOWN
+    ENABLE_MARKDOWN,
+    OPENAI_LIKE_BASE_URL,
+    OPENAI_LIKE_API_KEY,
 )
 from ..utils.ai_utils import save_markdown
 
@@ -69,6 +72,8 @@ class MarketValidationService:
         # Initialize research model
         if research_model_type.lower() == "openai":
             self.market_research_model = OpenAIChat(id=research_model_id)
+        elif research_model_type.lower() == "openai_like":
+            self.market_research_model = OpenAILike(id=research_model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         elif research_model_type.lower() == "groq":
             self.market_research_model = Groq(id=research_model_id)
         elif research_model_type.lower() == "mistral":
@@ -79,6 +84,8 @@ class MarketValidationService:
         # Initialize analysis model
         if analysis_model_type.lower() == "gemini":
             self.market_analysis_model = Gemini(id=analysis_model_id)
+        elif analysis_model_type.lower() == "openai_like":
+            self.market_analysis_model = OpenAILike(id=analysis_model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         elif analysis_model_type.lower() == "groq":
             self.market_analysis_model = Groq(id=analysis_model_id)
         elif analysis_model_type.lower() == "mistral":
@@ -89,6 +96,8 @@ class MarketValidationService:
         # Initialize report model
         if report_model_type.lower() == "gemini":
             self.report_generator_model = Gemini(id=report_model_id)
+        elif report_model_type.lower() == "openai_like":
+            self.report_generator_model = OpenAILike(id=report_model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         elif report_model_type.lower() == "groq":
             self.report_generator_model = Groq(id=report_model_id)
         elif report_model_type.lower() == "mistral":
@@ -99,6 +108,8 @@ class MarketValidationService:
         # Initialize manager model
         if manager_model_type.lower() == "gemini":
             self.manager_model = Gemini(id=manager_model_id)
+        elif manager_model_type.lower() == "openai_like":
+            self.manager_model = OpenAILike(id=manager_model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         elif manager_model_type.lower() == "groq":
             self.manager_model = Groq(id=manager_model_id)
         elif manager_model_type.lower() == "mistral":

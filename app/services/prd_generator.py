@@ -11,6 +11,7 @@ from agno.models.groq import Groq
 from agno.models.google import Gemini
 from agno.models.openai import OpenAIChat
 from agno.models.mistral import MistralChat
+from agno.models.openai.like import OpenAILike
 from agno.memory.v2.schema import UserMemory
 
 from app.services.memory_storage_service import get_memory, get_storage
@@ -20,7 +21,9 @@ from .config import (
     PRD_MODEL_ID,
     ENABLE_DEBUG_MODE,
     ENABLE_SHOW_TOOL_CALLS,
-    ENABLE_MARKDOWN
+    ENABLE_MARKDOWN,
+    OPENAI_LIKE_BASE_URL,
+    OPENAI_LIKE_API_KEY,
 )
 
 # Set up logging
@@ -39,7 +42,7 @@ class PRDGeneratorService:
         Initialize the PRD Generator service.
         
         Args:
-            model_type: The model provider to use ('groq', 'gemini', 'openai', or 'mistral')
+            model_type: The model provider to use ('groq', 'gemini', 'openai', 'openai_like', or 'mistral')
             model_id: The model ID to use
         """
         self.model_type = model_type or PRD_MODEL_TYPE
@@ -50,6 +53,8 @@ class PRDGeneratorService:
             self.model = Gemini(id=self.model_id)
         elif self.model_type.lower() == "openai":
             self.model = OpenAIChat(id=self.model_id)
+        elif self.model_type.lower() == "openai_like":
+            self.model = OpenAILike(id=self.model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         elif self.model_type.lower() == "mistral":
             self.model = MistralChat(id=self.model_id)
         else:  # Default to groq

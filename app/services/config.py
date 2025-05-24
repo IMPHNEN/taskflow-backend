@@ -8,7 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration for memory and storage
-POSTGRES_CONNECTION = os.getenv("POSTGRES_CONNECTION")
+POSTGRES_CONNECTION = os.getenv("POSTGRES_CONNECTION", None)
+
+# Optional ENVs for OpenAI Like Model
+OPENAI_LIKE_BASE_URL = os.getenv("OPENAI_LIKE_BASE_URL", "https://api.openai.com/v1")
+OPENAI_LIKE_API_KEY = os.getenv("OPENAI_LIKE_API_KEY", None)
 
 # Default model settings
 DEFAULT_MODEL_TYPE = os.getenv("DEFAULT_MODEL_TYPE", "groq")
