@@ -25,8 +25,9 @@ RUN patchright install --with-deps chromium
 # Cleanup
 RUN apt-get autoremove -y \
     && apt-get clean \
+    && pip cache purge \
     && rm -rf /var/lib/apt/lists/*
-    
+
 # Copy project files
 COPY . .
 
