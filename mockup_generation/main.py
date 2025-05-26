@@ -1,28 +1,32 @@
 import notte
-import os
 from prompt import prompt_task
-
-agi = notte.Agent(reasoning_model="openrouter/google/gemma-3-27b-it", max_steps=20, use_vision=True)
-
-os.environ["OPENROUTER_API_KEY"] = "sk-"
-# os.environ["CEREBRAS_API_KEY"] = "csk-"
-# os.environ["GROQ_API_KEY"] = "gsk_"
+from agno.agent import Agent, RunResponse
+from agno.models.openai import OpenAIChat
 
 
-query = """
-> “Create a clean, responsive homepage mockup for a modern AI consulting agency.
->
-> The website should include:
->
-> * Hero section with a headline, subheadline, and call-to-action button
-> * About us section with 3 bullet points
-> * Services section highlighting: LLM Integration, Custom AI Agents, and Automation Tools
-> * Testimonials from clients
-> * Contact form at the bottom
->
-> Design style: Minimalist, professional, and futuristic. Use a light theme with blue and black as accent colors.”
-"""
+def create_query(info, brd):
+    agent = Agent(
+    model=OpenAIChat(id="gpt-4o-mini"),
+    role="You are a highly skilled Prompt Engineer tasked with crafting a precise and actionable prompt for the Lovable AI tool, which generates website mockups.",
+    expected_output="A clear, well-structured prompt, ready to be processed directly by the Lovable AI tool, with no extraneous explanation or conversation.",
+    reasoning=True,
+    context={
+        "Project Context": info,
+        "Business Requirements Document": brd
+    },
+    add_context=True)
 
-task = prompt_task.format(email="@gmail.com", password="@akupassword", query=query)
+    response: RunResponse = agent.run("From the Project Context and Business Requirements Document, generate a Prompt for a AI Tools called Lovable that will generate mockups for a website.")
+    return response.content
 
-agi.run(task=task, url="https://lovable.dev/login")
+def main(info, brd, lovable_email, lovable_password):
+    query = create_query(info=info, brd=brd)
+
+    agi = notte.Agent(reasoning_model="openrouter/google/gemma-3-27b-it", max_steps=20, use_vision=True)
+
+    task = prompt_task.format(email=lovable_email, password=lovable_password, query=query)
+
+    agi.run(task=task, url="https://lovable.dev/login")
+
+if __name__ == "__main__":
+    main(info="", brd="", lovable_email="", lovable_password="")
