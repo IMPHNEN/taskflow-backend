@@ -74,8 +74,8 @@ class PreviewGeneratorService:
         self.notte_agent = notte.Agent(
             reasoning_model="openrouter/google/gemma-3-27b-it",
             max_steps=20,
-            use_vision=False,
-            headless=True,  # Set to True for production
+            use_vision=True,
+            headless=False,  # Set to True for production
             chrome_args=[
                 "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 "--disable-media-src",
@@ -221,7 +221,7 @@ if you are not logged in, try to login again.
 - After that there will be a Popup in the top right corner, click on the **Publish** button in the popup.
 - Wait **30,000 milliseconds (30 seconds)** for the mockup to be published.
 - If successful, the button label will change from **Publish** to **Update**.
-- **Return only the preview link (https://preview--[project-name].lovable.app/)** of the published mockup.
+- **Return only the preview link (https://preview--[slug-id].lovable.app/)** of the published mockup.
 
 **Important:** The site will show you the website but ITS NOT PUBLISHED YET, you need to publish it first.
 **Important:** Make sure to check if the website is published before returning the link.
