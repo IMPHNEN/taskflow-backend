@@ -162,7 +162,7 @@ async def generate_preview_background(project_id: str):
             # Update mockup record with results
             supabase.table('mockup').update({
                 'preview_url': result['preview_url'],
-                'tool_used': 'Lovable',
+                'tool_used': 'lovable',
                 'status': 'completed'
             }).eq('project_id', project_id).execute()
         else:
