@@ -71,7 +71,7 @@ class PreviewGeneratorService:
         self._storage = get_storage()
 
         # Initialize shared browser context
-        self._playwright = None
+        self._playwright_instance = None
         self._cdp_client = None
         self._context = None
         self._ping_task = None
