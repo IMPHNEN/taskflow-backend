@@ -58,4 +58,37 @@ ENABLE_MARKDOWN = os.getenv("ENABLE_MARKDOWN", "True").lower() == "true"
 
 # File paths
 RESULTS_DIR = os.getenv("RESULTS_DIR", "results")
-os.makedirs(RESULTS_DIR, exist_ok=True) 
+os.makedirs(RESULTS_DIR, exist_ok=True)
+
+# Patchright Configuration
+LOVABLE_COOKIES = os.getenv("LOVABLE_COOKIES")
+WS_CDP_ENDPOINT = os.getenv("WS_CDP_ENDPOINT")
+DATA_DIR = os.path.join(os.getcwd(), "temp_data")
+
+# Browser arguments
+BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+BROWSER_ARGS = [
+    f"--user-agent={BROWSER_UA}",
+    # disable media for faster performance
+    "--disable-media-src",
+    "--blink-settings=imagesEnabled=false",
+    "--disable-features=HardwareMediaKeyHandling,GlobalMediaControls",
+    "--disable-accelerated-video-decode",
+    "--disable-gpu",
+    # some additional args
+    "--disable-dev-shm-usage",
+    "--disable-extensions",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--no-zygote",
+    "--mute-audio",
+    '--js-flags="--max-old-space-size=100"',
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--start-maximized",
+    # disable web security
+    "--disable-web-security",
+    "--disable-site-isolation-trials",
+    "--disable-features=IsolateOrigins,site-per-process",
+    "--remote-allow-origins=*",
+] 
