@@ -3,9 +3,10 @@ Preview Generator service for generating website mockups using Lovable.
 """
 import logging
 import os
+import re
+import asyncio
 from typing import Dict, Any
 
-import notte
 from agno.agent import Agent
 from agno.models.groq import Groq
 from agno.models.google import Gemini
@@ -13,6 +14,7 @@ from agno.models.openai import OpenAIChat
 from agno.models.mistral import MistralChat
 from agno.models.openai.like import OpenAILike
 from agno.memory.v2.schema import UserMemory
+from patchright.async_api import async_playwright
 
 from .config import (
     DEFAULT_MODEL_TYPE,
@@ -22,6 +24,11 @@ from .config import (
     ENABLE_MARKDOWN,
     OPENAI_LIKE_BASE_URL,
     OPENAI_LIKE_API_KEY,
+    LOVABLE_COOKIES,
+    WS_CDP_ENDPOINT,
+    DATA_DIR,
+    BROWSER_ARGS,
+    BROWSER_UA,
 )
 from .memory_storage_service import get_memory, get_storage
 
@@ -49,51 +56,33 @@ class PreviewGeneratorService:
         
         # Initialize the model based on provider
         if self.model_type.lower() == "gemini":
-            self.model = Gemini(id=self.model_id)
+            self._model = Gemini(id=self.model_id)
         elif self.model_type.lower() == "openai":
-            self.model = OpenAIChat(id=self.model_id)
+            self._model = OpenAIChat(id=self.model_id)
         elif self.model_type.lower() == "mistral":
-            self.model = MistralChat(id=self.model_id)
+            self._model = MistralChat(id=self.model_id)
         elif self.model_type.lower() == "openai_like":
-            self.model = OpenAILike(id=self.model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
+            self._model = OpenAILike(id=self.model_id, base_url=OPENAI_LIKE_BASE_URL, api_key=OPENAI_LIKE_API_KEY)
         else:  # Default to groq
-            self.model = Groq(id=self.model_id)
+            self._model = Groq(id=self.model_id)
         
         # Initialize Memory and Storage using singleton service
-        self.memory = get_memory()
-        self.storage = get_storage()
+        self._memory = get_memory()
+        self._storage = get_storage()
 
-        # Lovable credentials
-        self.lovable_email = os.getenv("LOVABLE_EMAIL")
-        self.lovable_password = os.getenv("LOVABLE_PASSWORD")
+        # Initialize shared browser context
+        self._playwright = None
+        self._cdp_client = None
+        self._context = None
+        self._ping_task = None
         
-        if not self.lovable_email or not self.lovable_password:
-            logger.warning("Lovable credentials not found in environment variables")
-        
-        # Initialize notte agent for browser automation
-        self.notte_agent = notte.Agent(
-            reasoning_model="openrouter/google/gemma-3-27b-it",
-            max_steps=20,
-            use_vision=True,
-            headless=False,  # Set to True for production
-            chrome_args=[
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "--disable-media-src",
-                "--blink-settings=imagesEnabled=false",
-                "--disable-features=HardwareMediaKeyHandling,GlobalMediaControls",
-                "--disable-accelerated-video-decode",
-                "--disable-gpu",
-                "--start-maximized",
-            ],
-            # web_security=True,
-        )
-        
-        self.agent = Agent(
-            model=self.model,
-            memory=self.memory,
+        # Initialize the agent for query generation
+        self._agent = Agent(
+            model=self._model,
+            memory=self._memory,
             enable_agentic_memory=True,
             enable_user_memories=True,
-            storage=self.storage,
+            storage=self._storage,
             name="PreviewGenerator",
             instructions="""
             You are a highly skilled Prompt Engineer tasked with crafting a precise and actionable prompt for the Lovable AI tool, which generates website mockups.
@@ -116,12 +105,73 @@ class PreviewGeneratorService:
             debug_mode=ENABLE_DEBUG_MODE,
             markdown=ENABLE_MARKDOWN
         )
-            
+        
         logger.info(f"Initialized Preview Generator with {self.model_type} model (ID: {self.model_id})")
 
-    async def create_lovable_prompt(self, project_info: str, brd_content: str, user_id: str = None) -> str:
+    @property
+    async def _playwright(self):
+        """Internal method to get or create playwright instance"""
+        if self._playwright_instance is None:
+            self._playwright_instance = await async_playwright().start()
+        return self._playwright_instance
+
+    async def _ping_cdp_server(self, cdp_client, interval=120):
+        """Internal method to ping CDP server every interval seconds to prevent timeout using a separate context"""
+        ping_context = None
+        try:
+            ping_context = await cdp_client.new_context()
+            ping_page = await ping_context.new_page()
+            while True:
+                try:
+                    await asyncio.sleep(interval)
+                    # Simple ping by evaluating a basic expression
+                    await ping_page.evaluate("1 + 1")
+                except Exception as e:
+                    break
+        finally:
+            if ping_context:
+                await ping_context.close()
+
+    async def _initialize_browser(self):
+        """Internal method to initialize browser context if not already initialized"""
+        if not self._context:
+            pw = await self._playwright
+            if WS_CDP_ENDPOINT:
+                self._cdp_client = await pw.chromium.connect(
+                    ws_endpoint=WS_CDP_ENDPOINT,
+                    timeout=10000,
+                    slow_mo=1000,
+                    headers={
+                        "User-Agent": BROWSER_UA,
+                    }
+                )
+                self._context = await self._cdp_client.new_context()
+                # Start ping task with CDP client
+                self._ping_task = asyncio.create_task(self._ping_cdp_server(self._cdp_client))
+            else:
+                self._context = await pw.chromium.launch_persistent_context(
+                    user_data_dir=DATA_DIR,
+                    headless=False,
+                    args=BROWSER_ARGS,
+                    slow_mo=1000
+                )
+
+            # Parse and add cookies
+            if LOVABLE_COOKIES:
+                cookies = []
+                for cookie in LOVABLE_COOKIES.split("; "):
+                    name, value = cookie.split("=", 1)
+                    cookies.append({
+                        "name": name,
+                        "value": value,
+                        "domain": ".lovable.dev",
+                        "path": "/"
+                    })
+                await self._context.add_cookies(cookies)
+
+    async def _create_lovable_prompt(self, project_info: str, brd_content: str, user_id: str = None) -> str:
         """
-        Create a prompt for Lovable AI tool based on project information and BRD.
+        Internal method to create a prompt for Lovable AI tool based on project information and BRD.
         
         Args:
             project_info: Project information string
@@ -146,7 +196,7 @@ class PreviewGeneratorService:
         From the Project Context and Business Requirements Document, generate a Prompt for an AI tool called Lovable that will generate mockups for a website.
         """
         
-        response = await self.agent.arun(
+        response = await self._agent.arun(
             prompt_input,
             user_id=user_id,
             session_id=f"{user_id}_preview" if user_id else None
@@ -154,9 +204,9 @@ class PreviewGeneratorService:
         
         return response.content.strip()
 
-    async def generate_mockup_with_notte(self, lovable_prompt: str) -> Dict[str, Any]:
+    async def _generate_mockup_with_patchright(self, lovable_prompt: str) -> Dict[str, Any]:
         """
-        Generate mockup using notte agent to interact with Lovable.
+        Internal method to generate mockup using patchright to interact with Lovable.
         
         Args:
             lovable_prompt: The prompt to send to Lovable
@@ -164,111 +214,103 @@ class PreviewGeneratorService:
         Returns:
             Dictionary with mockup generation results
         """
-        if not self.lovable_email or not self.lovable_password:
-            raise ValueError("Lovable credentials not configured")
-        
-        # Lovable automation task template
-        task_template = """
----
-
-### Prompt for Lovable Agent – Website Mockup Request
-
-**Objective:**  
-Log in to Lovable using the provided email and password, then request a **website mockup** based on the given query and requirements.
-
----
-
-### Step 1: Log In
-
-- Go to the Lovable website.
-- Use the credentials below to log in:
-
-  - **Email:**'{email}'  
-  - **Password:**'{password}'
-
-**Important:** Do **not** use "Sign in with Google" or "Sign in with GitHub". Use only the Email and Password fields.
-
-### Step 2: Sign in
-
-- Click the Sign in Button
-- Check if you are logged in by checking if there is the '{email}' in the top-right corner.
-
-if you are not logged in, try to login again.
-
----
-
-### Step 3: Submit the Mockup Request
-
-- After logging in, locate the input field for mockup requests.
-- Submit the following query:
-
-{query}
-
----
-
-### Step 4: Wait for the Draft
-
-- Wait **180,000 milliseconds (180 seconds)** for the mockup draft to generate.
-- If the draft is not ready, wait an additional **180,000 milliseconds**.
-- Continue waiting in 180-second intervals until the mockup is ready.
-
----
-
-### Step 5: Output the Result
-
-  Once the mockup is ready:
-- Click the **Publish** button (top-right corner).
-- After that there will be a Popup in the top right corner, click on the **Publish** button in the popup.
-- Wait **30,000 milliseconds (30 seconds)** for the mockup to be published.
-- If successful, the button label will change from **Publish** to **Update**.
-- **Return only the preview link (https://preview--[slug-id].lovable.app/)** of the published mockup.
-
-**Important:** The site will show you the website but ITS NOT PUBLISHED YET, you need to publish it first.
-**Important:** Make sure to check if the website is published before returning the link.
-**Important:** Do **not** include any additional text or context. Return only the preview link.
-
----
-
-**Important Notes:**  
-Ensure the submitted query is clear, design-focused, and suitable for a modern business homepage. Emphasize usability, aesthetic appeal, and functional clarity.  
-If the input query is unclear or ambiguous, feel free to **rephrase it** to better guide the agentic system on Lovable toward generating an optimal mockup.
-
----
-"""
-        
-        # Format the task with credentials and prompt
-        task = task_template.format(
-            email=self.lovable_email,
-            password=self.lovable_password,
-            query=lovable_prompt
-        )
-
-        try:
-            # Run the notte agent asynchronously
-            result = await self.notte_agent.arun(task=task, url="https://lovable.dev/login")
+        try:           
+            # Create new page in existing context
+            page = await self._context.new_page()
             
-            # Parse the result
-            if result and hasattr(result, 'answer'):
-                preview_url = result.answer
-                if preview_url and preview_url.startswith("https://preview--"):
+            try:
+                logger.info("Visiting Lovable")
+                await page.goto("https://lovable.dev/")
+                
+                logger.info("Filling query")
+                await page.locator("#chatinput").fill(lovable_prompt)
+                submit_button = page.locator("#chatinput-send-message-button")
+                await submit_button.wait_for(state="visible", timeout=5000)
+                await submit_button.click()
+
+                # Check for daily limit message
+                await page.wait_for_timeout(2000)
+                limit_message = page.get_by_text("You have reached your daily messaging limit.")
+                if await limit_message.is_visible(timeout=3000):
+                    await page.close()
+                    raise Exception("Daily messaging limit reached on Lovable")
+
+                await page.wait_for_url(re.compile(r"https://lovable\.dev/projects/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))
+                await page.wait_for_timeout(10000)
+                loading_button = page.get_by_text("Spinning up preview...")
+                logger.info("Waiting for generation to complete")
+                
+                try:
+                    await loading_button.wait_for(state="hidden", timeout=500000)
+                    logger.info("Generation complete")
+                    await page.wait_for_timeout(2000)
+
+                    error_button = page.get_by_role("button", name="Error Build unsuccessful")
+                    if await error_button.is_visible():
+                        logger.info("Build error detected, attempting fix...")
+                        await error_button.click()
+                        await page.get_by_role("button", name="Try to fix").first.click()
+                        logger.info("Waiting for regeneration...")
+                        await loading_button.wait_for(state="hidden", timeout=500000)
+                        logger.info("Regeneration complete") 
+                        await page.wait_for_timeout(2000)
+                    
+                    logger.info("Publishing preview")
+                    await page.locator('//*[@id="publish-menu"]/span').click()
+                    await page.locator("a[href='https://docs.lovable.dev/features/deploy'] + div > button").click()
+
+                    logger.info("Waiting for preview to be published")
+                    await page.wait_for_timeout(10000)
+
+                    logger.info("Getting preview link")
+                    preview_link = await page.locator('a[href^="https://preview--"]').first.get_attribute('href')
+                    
+                    await page.close()
                     return {
                         "status": "success",
-                        "preview_url": preview_url,
+                        "preview_url": preview_link,
                         "message": "Mockup generated successfully"
                     }
-            
-            return {
-                "status": "error",
-                "error": "Failed to generate or publish mockup",
-                "raw_result": str(result) if result else None
-            }
+                    
+                except Exception as e:
+                    logger.info("Getting preview link")
+                    preview_link = await page.locator('a[href^="https://preview--"]').first.get_attribute('href')
+                    await page.close()
+                    return {
+                        "status": "success",
+                        "preview_url": preview_link,
+                        "message": "Mockup generated successfully"
+                    }
+                    
+            except Exception as e:
+                if page:
+                    await page.close()
+                raise e
             
         except Exception as e:
-            logger.error(f"Notte agent execution failed: {str(e)}")
+            logger.error(f"Patchright execution failed: {str(e)}")
             return {
                 "status": "error", 
                 "error": f"Browser automation failed: {str(e)}"
             }
+
+    async def cleanup(self):
+        """Cleanup browser resources"""
+        if self._ping_task:
+            self._ping_task.cancel()
+            try:
+                await self._ping_task
+            except asyncio.CancelledError:
+                pass
+            
+        if self._context:
+            await self._context.close()
+            
+        if self._cdp_client:
+            await self._cdp_client.close()
+            
+        if self._playwright:
+            await self._playwright.stop()
 
     async def generate_preview(self, project_details: Dict[str, Any], brd_content: str, user_id: str = None) -> Dict[str, Any]:
         """
@@ -288,22 +330,25 @@ If the input query is unclear or ambiguous, feel free to **rephrase it** to bett
         logger.info(f"Generating preview for: {project_details.get('name', 'Unnamed Project')}")
         
         try:
+            # Initialize browser
+            await self._initialize_browser()
+
             # Create project info string
             project_info = f"name: {project_details.get('name', 'Unnamed Project')}\nobjective/description: {project_details.get('objective', 'No description provided')}"
             
             # Step 1: Generate Lovable prompt
-            lovable_prompt = await self.create_lovable_prompt(project_info, brd_content, user_id)
+            lovable_prompt = await self._create_lovable_prompt(project_info, brd_content, user_id)
             logger.info(f"Generated Lovable prompt: {lovable_prompt[:100]}...")
             
-            # Step 2: Generate mockup using notte
-            mockup_result = await self.generate_mockup_with_notte(lovable_prompt)
+            # Step 2: Generate mockup using patchright
+            mockup_result = await self._generate_mockup_with_patchright(lovable_prompt)
             
             if mockup_result["status"] == "success":
                 project_name = project_details.get('name', 'Unnamed Project')
                 
                 # Store in memory
-                if user_id and self.memory:
-                    self.memory.add_user_memory(user_id=user_id, memory=UserMemory(
+                if user_id and self._memory:
+                    self._memory.add_user_memory(user_id=user_id, memory=UserMemory(
                         memory=f"""
                         Project Preview Generated:
                         Project: {project_name}
