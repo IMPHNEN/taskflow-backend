@@ -1,7 +1,7 @@
 """
 Background task functions for AI generation services.
 """
-from ..config import supabase, brd_service, prd_service, task_service, market_validation_service, github_setup_service
+from ..config import supabase, brd_service, prd_service, task_service, market_validation_service, github_setup_service, preview_service
 from .ai_utils import llm_to_tasks
 
 async def generate_brd_background(project_id: str, project_data: dict):
@@ -138,5 +138,41 @@ async def setup_github_repository_background(project_id: str, github_token: str)
     except Exception as e:
         # Update status to failed
         supabase.table('github_setup').update({
+            'status': 'failed'
+        }).eq('project_id', project_id).execute()
+
+async def generate_preview_background(project_id: str):
+    """Background task to generate preview/mockup"""
+    try:
+        # Get project details and BRD content
+        project = supabase.table('projects').select('*').eq('id', project_id).single().execute()
+        brd = supabase.table('brd').select('*').eq('project_id', project_id).single().execute()
+        
+        if not project.data or not brd.data or brd.data['status'] != 'completed':
+            raise ValueError("Project or BRD not found or BRD not completed")
+        
+        # Run preview generation
+        result = await preview_service.generate_preview(
+            project_details=project.data,
+            brd_content=brd.data['brd_markdown'],
+            user_id=project_id
+        )
+        
+        if result['status'] == 'success':
+            # Update mockup record with results
+            supabase.table('mockup').update({
+                'preview_url': result['preview_url'],
+                'tool_used': 'Lovable',
+                'status': 'completed'
+            }).eq('project_id', project_id).execute()
+        else:
+            # Update status to failed
+            supabase.table('mockup').update({
+                'status': 'failed'
+            }).eq('project_id', project_id).execute()
+            
+    except Exception as e:
+        # Update status to failed
+        supabase.table('mockup').update({
             'status': 'failed'
         }).eq('project_id', project_id).execute() 

@@ -10,7 +10,8 @@ from ...utils.background_tasks import (
     generate_prd_background,
     generate_tasks_background,
     validate_market_background,
-    setup_github_repository_background
+    setup_github_repository_background,
+    generate_preview_background
 )
 
 router = APIRouter(
@@ -385,18 +386,49 @@ async def setup_project_repository(project_id: str, background_tasks: Background
 
 @router.post("/{project_id}/generate-preview")
 @handle_exceptions(status_code=500)
-async def generate_project_preview(project_id: str, user: dict = Depends(require_user)):
-    """Generate project preview/mockup"""
+async def generate_project_preview(project_id: str, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
+    """Generate project preview/mockup using Lovable"""
     # Verify project ownership
     project = supabase.table('projects').select('*').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
     if not project or not project.data:
         raise HTTPException(status_code=404, detail="Project not found")
-        
-    # TODO: Implement preview generation using v0.dev or similar
-    return {
-        "message": "Preview generated",
-        "preview": {
-            "url": "https://example.com/preview.png",
-            "type": "landing_page"
+    
+    # Check if mockup record exists
+    mockup_record = supabase.table('mockup').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    # If mockup already exists and is not failed, return the existing content
+    if mockup_record and mockup_record.data['status'] != 'failed':
+        return {
+            "message": f"Preview exists with status: {mockup_record.data['status']}",
+            "preview_url": mockup_record.data.get('preview_url', None),
+            "tool_used": mockup_record.data.get('tool_used', None),
+            "status": mockup_record.data['status']
         }
+    
+    # Check BRD status - Preview can only be generated if BRD is completed
+    brd_record = supabase.table('brd').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    if not brd_record or brd_record.data['status'] != 'completed':
+        raise HTTPException(status_code=400, detail="BRD must be completed before generating preview")
+    
+    # Create new record or update failed record to in_progress
+    if not mockup_record:
+        # Create a new mockup record with status 'in_progress'
+        supabase.table('mockup').insert({
+            'project_id': project_id,
+            'status': 'in_progress'
+        }).execute()
+    else:
+        # Update the status to 'in_progress'
+        supabase.table('mockup').update({'status': 'in_progress'}).eq('project_id', project_id).execute()
+    
+    # Add the background task
+    background_tasks.add_task(generate_preview_background, project_id)
+    
+    # Return immediately with in_progress status
+    return {
+        "message": "Preview generation started",
+        "preview_url": None,
+        "tool_used": None,
+        "status": "in_progress"
     } 

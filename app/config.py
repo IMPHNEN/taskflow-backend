@@ -6,6 +6,7 @@ from .services.prd_generator import PRDGeneratorService
 from .services.task_generator import TaskGeneratorService
 from .services.market_validation import MarketValidationService
 from .services.github_setup import GitHubSetupService
+from .services.preview_generator import PreviewGeneratorService
 # Load environment variables
 load_dotenv()
 
@@ -37,3 +38,4 @@ prd_service = PRDGeneratorService()
 task_service = TaskGeneratorService()
 market_validation_service = MarketValidationService() 
 github_setup_service = GitHubSetupService()
+preview_service = PreviewGeneratorService()
