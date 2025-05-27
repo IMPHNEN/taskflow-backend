@@ -6,5 +6,6 @@ if __name__ == "__main__":
         "app.main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True  # Enable auto-reload during development
+        # Don't change this to True, because it's buggy [https://github.com/langchain-ai/langchain/issues/10475]
+        reload=False
     ) 
