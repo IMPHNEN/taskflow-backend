@@ -27,6 +27,7 @@ market_researcher = Agent(
         "Use Firecrawl to map URLs from the identified competitor websites.",
         "Scrape each URL using Firecrawl, focusing on extracting detailed information about features, pricing plans, and unique selling points (USPs).",
         "Ensure that comprehensive data is collected for at least 5 major competitors.",
+        "make initial Report of every competitor",
         "Emphasize extracting clear data points related to product/service features, pricing structure, and market positioning.",
         "Organize the extracted data in a clean, structured format suitable for comparison and analysis."
     ],
@@ -52,6 +53,7 @@ market_analyzer = Agent(
         "Analyze pricing strategies to understand market positioning and value propositions.",
         "Identify gaps in the market that could be potential opportunities for the project.",
         "Evaluate the competitive landscape to determine market saturation and entry barriers.",
+        "Identify User Segmentation and User Behavior patterns of the Industry based on information you got.",
         "Provide data-driven insights on market positioning and potential unique selling points.",
     ],
     reasoning=True,  # Enable Agno's reasoning capabilities
@@ -90,6 +92,7 @@ report_generator = Agent(
             E[AI-Driven Personalization] --> F[Enhanced User Engagement]
             G[Flexible Pricing Models] --> H[Broader Market Reach]
         ```""",
+        "Create report for User Segmentation and User Behavior",
         "Provide a market projection for the next 3–5 years, including estimated market size and growth trends.",
         """Visualize market projection using a Mermaid chart:
         ```mermaid
@@ -147,9 +150,11 @@ market_validation_team = Team(
         """Ensure the final report includes : 
         1. competitor analysis with feature and pricing plans comparision.
         2. recommended USPs that not offered by competitors. 
-        3. Future Market Projection.
+        3. User Segmentation and User Behavior
         4. Revenue Stream and the Potention of the Revenue.
-        5. Initial Cost Estimate to  produce the MVP(Minimum Viable Product).""",
+        5. Initial Cost Estimate to  produce the MVP(Minimum Viable Product).
+        6. Future Market Projection.
+        """,
         "Expected output: A comprehensive market validation report, avoid formal introductions, small talk, or unnecessary closing statements. Start directly with the content of the report. Do not use phrases like 'This report provides...' or 'feel free to ask'."
     ],
     add_datetime_to_instructions=True,
