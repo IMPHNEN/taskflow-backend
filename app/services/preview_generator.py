@@ -203,6 +203,7 @@ class PreviewGeneratorService:
                     logger.warning(f"Browser connection error detected: {str(e)}")
                     await self._cleanup_browser_resources()
                     await self._initialize_browser(retry_attempt=True)
+                    logger.info("Browser reconnection successful...")
                     return True
                 raise e
                         
