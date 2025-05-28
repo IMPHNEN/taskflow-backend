@@ -75,6 +75,9 @@ def llm_to_tasks(generated_tasks: List[Dict[str, Any]], project_id: str) -> List
     id_mapping = {task['id']: str(uuid4()) for task in generated_tasks}
     
     task_records = []
+    # Use position counter to ensure incremental positions
+    position_counter = 1
+    
     for task in generated_tasks:
         task_data = {
             'id': id_mapping[task['id']],
@@ -82,10 +85,14 @@ def llm_to_tasks(generated_tasks: List[Dict[str, Any]], project_id: str) -> List
             'title': task['title'],
             'description': task['description'],
             'task_type': task['task_type'],
-            'position': task['position'],
+            'status': 'backlog',  # Force all tasks to backlog status
+            # 'position': task['position'],
+            'position': position_counter,  # Use incremental position
             'story_point': 0,  # Set story point to 0
             'parent_id': id_mapping.get(task['parent_id']) if task['parent_id'] else None,
         }
+        # Increment position for next task
+        position_counter += 1
         task_records.append(task_data)
     
     logger.info(f"✅ Successfully converted tasks with {len(task_records)} records")
@@ -131,5 +138,4 @@ def save_markdown(markdown_content: str, base_filename: str) -> str:
     with open(full_path, "w", encoding="utf-8") as f:
         f.write(markdown_content)
     
-    logger.info(f"✅ Markdown saved to: {full_path}")
-    return full_path 
+    logger.info(f"✅ Markdown saved to: {full_path}") 
