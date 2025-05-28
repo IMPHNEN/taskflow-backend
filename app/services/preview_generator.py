@@ -132,7 +132,33 @@ class PreviewGeneratorService:
             if ping_context:
                 await ping_context.close()
 
-    async def _initialize_browser(self):
+    async def _cleanup_browser_resources(self):
+        """Internal method to cleanup browser resources without stopping playwright"""
+        logger.info("Cleaning up browser resources...")
+        if self._ping_task:
+            try:
+                self._ping_task.cancel()
+                await self._ping_task
+            except Exception as e:
+                logger.debug(f"Ping task cleanup error (expected): {e}")
+            finally:
+                self._ping_task = None
+            
+        if self._context:
+            try:
+                await self._context.close()
+            except Exception as e:
+                logger.warning(f"Error closing context: {e}")
+            self._context = None
+            
+        if self._cdp_client:
+            try:
+                await self._cdp_client.close()
+            except Exception as e:
+                logger.warning(f"Error closing CDP client: {e}")
+            self._cdp_client = None
+
+    async def _initialize_browser(self, retry_attempt: bool = False):
         """Internal method to initialize browser context if not already initialized"""
         if not self._context:
             pw = await self._playwright
@@ -168,6 +194,36 @@ class PreviewGeneratorService:
                         "path": "/"
                     })
                 await self._context.add_cookies(cookies)
+        else:
+            try:
+                p = await self._context.new_page()
+                await p.close()
+            except Exception as e:
+                if self._is_browser_connection_error(e) and not retry_attempt:
+                    logger.warning(f"Browser connection error detected: {str(e)}")
+                    await self._cleanup_browser_resources()
+                    await self._initialize_browser(retry_attempt=True)
+                    return True
+                raise e
+                        
+
+    def _is_browser_connection_error(self, error: Exception) -> bool:
+        """Check if the error is related to browser/context connection being closed"""
+        error_messages = [
+            "Target page, context or browser has been closed",
+            "Browser has been closed",
+            "Context has been closed",
+            "Connection closed",
+            "WebSocket connection closed",
+            "CDP session closed",
+            "Browser context is not connected",
+            "Page has been closed",
+            "Execution context was destroyed",
+            "Session closed",
+            "Target closed"
+        ]
+        error_str = str(error).lower()
+        return any(msg.lower() in error_str for msg in error_messages)
 
     async def _create_lovable_prompt(self, project_info: str, brd_content: str, user_id: str = None) -> str:
         """
@@ -296,21 +352,14 @@ class PreviewGeneratorService:
 
     async def cleanup(self):
         """Cleanup browser resources"""
-        if self._ping_task:
-            self._ping_task.cancel()
+        await self._cleanup_browser_resources()
+            
+        if self._playwright_instance:
             try:
-                await self._ping_task
-            except asyncio.CancelledError:
-                pass
-            
-        if self._context:
-            await self._context.close()
-            
-        if self._cdp_client:
-            await self._cdp_client.close()
-            
-        if self._playwright:
-            await self._playwright.stop()
+                await self._playwright_instance.stop()
+            except Exception as e:
+                logger.warning(f"Error stopping playwright: {e}")
+            self._playwright_instance = None
 
     async def generate_preview(self, project_details: Dict[str, Any], brd_content: str, user_id: str = None) -> Dict[str, Any]:
         """
