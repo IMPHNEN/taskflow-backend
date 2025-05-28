@@ -145,9 +145,8 @@ CREATE INDEX idx_market_research_project_id ON market_research(project_id);
 -- Add tasks indexes for better performance
 CREATE INDEX idx_tasks_project_id ON tasks(project_id);
 CREATE INDEX idx_tasks_parent_id ON tasks(parent_id);
-CREATE INDEX idx_tasks_project_parent_pos ON tasks(project_id, parent_id, position);
-CREATE INDEX idx_tasks_parent_pos ON tasks(parent_id, position);
-CREATE INDEX idx_tasks_proj_parent_pos ON tasks(project_id, COALESCE(parent_id, uuid_nil()), position);
+CREATE INDEX idx_tasks_status ON tasks(status);
+CREATE INDEX idx_tasks_project_status_pos ON tasks(project_id, status, position);
 
 -- Update timestamp trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -195,19 +194,19 @@ CREATE OR REPLACE FUNCTION adjust_task_positions()
 RETURNS TRIGGER AS $$
 DECLARE
     max_position INTEGER;
-    parent_key   UUID := COALESCE(NEW.parent_id, uuid_nil());
+    status_key   task_status := NEW.status;
 BEGIN
     -- Prevent recursive trigger loops
     IF pg_trigger_depth() > 1 THEN
         RETURN NEW;
     END IF;
 
-    -- Find current max position among siblings
+    -- Find current max position among tasks with same status
     SELECT COALESCE(MAX(position), 0)
         INTO max_position
         FROM tasks
         WHERE project_id = NEW.project_id
-        AND COALESCE(parent_id, uuid_nil()) = parent_key;
+        AND status = status_key;
 
     -- Assign or shift
     IF NEW.position IS NULL 
@@ -218,7 +217,7 @@ BEGIN
         UPDATE tasks
             SET position = position + 1
             WHERE project_id = NEW.project_id
-            AND COALESCE(parent_id, uuid_nil()) = parent_key
+            AND status = status_key
             AND position >= NEW.position;
     END IF;
 
@@ -234,8 +233,8 @@ DECLARE
     old_pos       INTEGER := OLD.position;
     new_pos       INTEGER;
     max_position  INTEGER;
-    old_parent    UUID := COALESCE(OLD.parent_id, uuid_nil());
-    new_parent    UUID := COALESCE(NEW.parent_id, uuid_nil());
+    old_status    task_status := OLD.status;
+    new_status    task_status := NEW.status;
 BEGIN
     -- Prevent recursive trigger loops
     IF pg_trigger_depth() > 1 THEN
@@ -244,7 +243,7 @@ BEGIN
 
     -- No-op if nothing meaningful changed
     IF old_pos = NEW.position
-        AND old_parent = new_parent THEN
+        AND old_status = new_status THEN
         RETURN NEW;
     END IF;
 
@@ -253,18 +252,18 @@ BEGIN
         INTO max_position
         FROM tasks
         WHERE project_id = NEW.project_id
-        AND COALESCE(parent_id, uuid_nil()) = new_parent
+        AND status = new_status
         AND id <> NEW.id;
 
     new_pos := LEAST(GREATEST(1, NEW.position), max_position + 1);
 
-    IF old_parent = new_parent THEN
-        -- Reordering within same bucket
+    IF old_status = new_status THEN
+        -- Reordering within same status
         IF new_pos > old_pos THEN
             UPDATE tasks
                 SET position = position - 1
                 WHERE project_id = NEW.project_id
-                AND COALESCE(parent_id, uuid_nil()) = new_parent
+                AND status = new_status
                 AND position > old_pos
                 AND position <= new_pos
                 AND id <> NEW.id;
@@ -272,24 +271,24 @@ BEGIN
             UPDATE tasks
                 SET position = position + 1
                 WHERE project_id = NEW.project_id
-                AND COALESCE(parent_id, uuid_nil()) = new_parent
+                AND status = new_status
                 AND position >= new_pos
                 AND position < old_pos
                 AND id <> NEW.id;
         END IF;
     ELSE
-        -- Moving between buckets: close old gap…
+        -- Moving between statuses: close old gap…
         UPDATE tasks
             SET position = position - 1
             WHERE project_id = NEW.project_id
-            AND COALESCE(parent_id, uuid_nil()) = old_parent
+            AND status = old_status
             AND position > old_pos;
 
         -- …and open new slot
         UPDATE tasks
             SET position = position + 1
             WHERE project_id = NEW.project_id
-            AND COALESCE(parent_id, uuid_nil()) = new_parent
+            AND status = new_status
             AND position >= new_pos
             AND id <> NEW.id;
     END IF;
@@ -307,11 +306,11 @@ CREATE OR REPLACE TRIGGER before_task_insert
     EXECUTE FUNCTION adjust_task_positions();
 
 CREATE OR REPLACE TRIGGER before_task_position_update
-    BEFORE UPDATE OF position, parent_id ON tasks
+    BEFORE UPDATE OF position, status ON tasks
     FOR EACH ROW
     WHEN (
         (OLD.position IS DISTINCT FROM NEW.position)
-        OR (OLD.parent_id IS DISTINCT FROM NEW.parent_id)
+        OR (OLD.status IS DISTINCT FROM NEW.status)
     )
     EXECUTE FUNCTION handle_task_position_update();
 

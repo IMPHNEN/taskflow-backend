@@ -12,6 +12,8 @@ DROP TRIGGER IF EXISTS before_task_position_update ON tasks;
 -- Drop functions
 DROP FUNCTION IF EXISTS public.handle_new_user();
 DROP FUNCTION IF EXISTS update_updated_at_column();
+DROP FUNCTION IF EXISTS adjust_task_positions();
+DROP FUNCTION IF EXISTS handle_task_position_update();
 
 -- Drop tables in correct order (respecting foreign key constraints)
 DROP TABLE IF EXISTS activity_logs;
