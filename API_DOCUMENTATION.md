@@ -71,6 +71,12 @@ Authentication tokens must be included in the `Authorization` header using the `
 | `/api/user/task/{project_id}/{task_id}` | DELETE | Delete a task               | None                                                                                      | `{ "message": "Task deleted successfully" }`    |
 | `/api/user/task/{project_id}/reorder`   | PATCH  | Reorder tasks in a project  | `[{ "task_id": "string", "position": int }]`                                              | `{ "message": "Tasks reordered successfully" }` |
 
+#### Feedback
+
+| Endpoint                | Method | Description         | Parameters                                               | Response                                          |
+| ----------------------- | ------ | ------------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| `/api/user/feedback`    | POST   | Submit new feedback | `{ "title": "string", "content": "string", "rating": int }` | `{ "message": "Feedback submitted successfully" }` |
+
 ## Models
 
 ### Project
@@ -106,6 +112,15 @@ class TaskCreate(BaseModel):
     task_type: TaskType
     task_status: TaskStatus
     position: int
+```
+
+### Feedback
+
+```python
+class FeedbackCreate(BaseModel):
+    title: str
+    content: str
+    rating: int  # 1-5 rating
 ```
 
 ## Error Handling
