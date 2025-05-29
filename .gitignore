@@ -132,6 +132,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+venv11/
 ENV/
 env.bak/
 venv.bak/
@@ -172,3 +173,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Custom
+/results/
+/test_codes/
+/temp_data/
