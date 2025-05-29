@@ -1,0 +1,229 @@
+{
+  "items": [
+    {
+      "id": "epic_1",
+      "title": "User Management",
+      "description": "User registration, login, and profile management",
+      "task_type": "epic",
+      "status": "open",
+      "position": 1,
+      "parent_id": null
+    },
+    {
+      "id": "feature_1",
+      "title": "User Registration",
+      "description": "Users can register using email or social media accounts",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_1"
+    },
+    {
+      "id": "task_1",
+      "title": "Implement user registration with email",
+      "description": "Allow users to register with their email address",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_1"
+    },
+    {
+      "id": "task_2",
+      "title": "Implement user registration with social media",
+      "description": "Allow users to register with their social media accounts",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_1"
+    },
+    {
+      "id": "feature_2",
+      "title": "User Login",
+      "description": "Users can login with their email or social media accounts",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_1"
+    },
+    {
+      "id": "task_3",
+      "title": "Implement user login with email",
+      "description": "Allow users to login with their email address",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_2"
+    },
+    {
+      "id": "task_4",
+      "title": "Implement user login with social media",
+      "description": "Allow users to login with their social media accounts",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_2"
+    },
+    {
+      "id": "feature_3",
+      "title": "Profile Management",
+      "description": "Users can manage their profile information",
+      "task_type": "feature",
+      "status": "open",
+      "position": 3,
+      "parent_id": "epic_1"
+    },
+    {
+      "id": "task_5",
+      "title": "Implement profile editing",
+      "description": "Allow users to edit their profile information",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_3"
+    },
+    {
+      "id": "task_6",
+      "title": "Implement profile viewing",
+      "description": "Allow users to view their profile information",
+      "task_type": "task",
+      "status": "open",
+      "position": 2,
+      "parent_id": "feature_3"
+    },
+    {
+      "id": "epic_2",
+      "title": "Chatbot Interface",
+      "description": "Chatbot for health information retrieval and symptom checking",
+      "task_type": "epic",
+      "status": "open",
+      "position": 2,
+      "parent_id": null
+    },
+    {
+      "id": "feature_4",
+      "title": "Health Information Retrieval",
+      "description": "Chatbot can retrieve and provide relevant health information",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_2"
+    },
+    {
+      "id": "task_7",
+      "title": "Implement health information retrieval",
+      "description": "Allow chatbot to retrieve and provide relevant health information",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_4"
+    },
+    {
+      "id": "feature_5",
+      "title": "Symptom Checker",
+      "description": "Chatbot can help users identify potential health issues",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_2"
+    },
+    {
+      "id": "task_8",
+      "title": "Implement symptom checker",
+      "description": "Allow chatbot to help users identify potential health issues",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_5"
+    },
+    {
+      "id": "epic_3",
+      "title": "Health Tracking",
+      "description": "Users can track their health metrics and progress over time",
+      "task_type": "epic",
+      "status": "open",
+      "position": 3,
+      "parent_id": null
+    },
+    {
+      "id": "feature_6",
+      "title": "Health Metrics Tracking",
+      "description": "Users can track various health metrics",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_3"
+    },
+    {
+      "id": "task_9",
+      "title": "Implement health metrics tracking",
+      "description": "Allow users to track various health metrics",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_6"
+    },
+    {
+      "id": "feature_7",
+      "title": "Wearable Integration",
+      "description": "Optional integration with wearables for enhanced health tracking",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_3"
+    },
+    {
+      "id": "task_10",
+      "title": "Implement wearable integration",
+      "description": "Allow integration with wearables for enhanced health tracking",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_7"
+    },
+    {
+      "id": "epic_4",
+      "title": "Notifications and Reminders",
+      "description": "System sends notifications for important health reminders",
+      "task_type": "epic",
+      "status": "open",
+      "position": 4,
+      "parent_id": null
+    },
+    {
+      "id": "feature_8",
+      "title": "Push Notifications",
+      "description": "System sends push notifications for important health reminders",
+      "task_type": "feature",
+      "status": "open",
+      "position": 1,
+      "parent_id": "epic_4"
+    },
+    {
+      "id": "task_11",
+      "title": "Implement push notifications",
+      "description": "Allow system to send push notifications for important health reminders",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_8"
+    },
+    {
+      "id": "feature_9",
+      "title": "In-App Notifications",
+      "description": "System provides in-app notifications for health updates and reminders",
+      "task_type": "feature",
+      "status": "open",
+      "position": 2,
+      "parent_id": "epic_4"
+    },
+    {
+      "id": "task_12",
+      "title": "Implement in-app notifications",
+      "description": "Allow system to provide in-app notifications for health updates and reminders",
+      "task_type": "task",
+      "status": "open",
+      "position": 1,
+      "parent_id": "feature_9"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[project]
+name = "taskflow-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "agno==1.5.0",
+    "duckduckgo-search>=8.0.1",
+    "firecrawl>=2.5.4",
+    "google-genai>=1.14.0",
+    "groq>=0.24.0",
+    "lxml-html-clean>=0.4.2",
+    "newspaper4k>=0.9.3.1",
+    "openai==1.76.0",
+    "python-dotenv>=1.1.0",
+    "tavily-python>=0.7.2",
+]
+
+[tool.uv.sources]
+agno = { git = "https://github.com/saikanov/agno.git", subdirectory = "libs/agno", rev = "main" }
