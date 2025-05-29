@@ -35,4 +35,8 @@ COPY . .
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "run.py"]
+# CMD ["python", "run.py"]
+
+# Run Gunicorn directly with workers based on CPU cores
+# CMD gunicorn --bind 0.0.0.0:8000 --workers $(($(nproc) * 2 + 1)) --threads $(( $(nproc) * 2 < 8 ? $(nproc) * 2 : 8 )) --worker-class uvicorn.workers.UvicornWorker --timeout 120 app.main:app
+CMD gunicorn --bind 0.0.0.0:8000 --workers 1 --threads $(( $(nproc) * 2 < 8 ? $(nproc) * 2 : 8 )) --worker-class uvicorn.workers.UvicornWorker --timeout 120 app.main:app
