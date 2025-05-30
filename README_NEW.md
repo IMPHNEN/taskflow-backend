@@ -23,14 +23,14 @@ TaskFlow addresses the challenges faced by solo entrepreneurs and small teams in
 
 ### Core AI Services
 
-| Service | Purpose | AI Models Supported | Key Features |
-|---------|---------|-------------------|--------------|
-| **BRD Generator** | Business Requirements Documents | OpenAI, Groq, Gemini, Mistral | Automated business analysis, stakeholder identification, requirement extraction |
-| **PRD Generator** | Product Requirements Documents | OpenAI, Groq, Gemini, Mistral | Feature specification, technical requirements, user story generation |
-| **Task Generator** | Intelligent Task Creation | OpenAI, Groq, Gemini, Mistral | Task breakdown, dependency mapping, effort estimation |
-| **Market Validation** | Multi-Agent Market Analysis | OpenAI, Gemini, Groq | Competitor research, market sizing, opportunity analysis |
-| **GitHub Setup** | Repository Automation | OpenAI, Groq, Gemini, Mistral | Automated repo creation, issue generation, milestone planning |
-| **Preview Generator** | Visual Mockup Creation | Lovable AI via OpenRouter | Website mockups, UI prototyping, design automation |
+| Service               | Purpose                         | AI Models Supported           | Key Features                                                                    |
+| --------------------- | ------------------------------- | ----------------------------- | ------------------------------------------------------------------------------- |
+| **BRD Generator**     | Business Requirements Documents | OpenAI, Groq, Gemini, Mistral | Automated business analysis, stakeholder identification, requirement extraction |
+| **PRD Generator**     | Product Requirements Documents  | OpenAI, Groq, Gemini, Mistral | Feature specification, technical requirements, user story generation            |
+| **Task Generator**    | Intelligent Task Creation       | OpenAI, Groq, Gemini, Mistral | Task breakdown, dependency mapping, effort estimation                           |
+| **Market Validation** | Multi-Agent Market Analysis     | OpenAI, Gemini, Groq          | Competitor research, market sizing, opportunity analysis                        |
+| **GitHub Setup**      | Repository Automation           | OpenAI, Groq, Gemini, Mistral | Automated repo creation, issue generation, milestone planning                   |
+| **Preview Generator** | Visual Mockup Creation          | Lovable AI via OpenRouter     | Website mockups, UI prototyping, design automation                              |
 
 ### AI Agent Architecture
 
@@ -52,17 +52,17 @@ TaskFlow addresses the challenges faced by solo entrepreneurs and small teams in
 
 ### Required API Keys
 
-| Service | Required For | How to Obtain |
-|---------|-------------|---------------|
-| **Supabase** | Database & Authentication | [supabase.com](https://supabase.com) |
-| **OpenAI** | GPT models | [platform.openai.com](https://platform.openai.com) |
-| **Groq** | Fast inference models | [console.groq.com](https://console.groq.com) |
-| **Google AI** | Gemini models | [ai.google.dev](https://ai.google.dev) |
-| **Mistral** | Mistral models | [console.mistral.ai](https://console.mistral.ai) |
-| **OpenRouter** | Preview generation | [openrouter.ai](https://openrouter.ai) |
-| **Tavily** | Market research | [tavily.com](https://tavily.com) |
-| **Firecrawl** | Content extraction | [firecrawl.dev](https://firecrawl.dev) |
-| **Lovable** | UI mockup generation | Contact Lovable for access |
+| Service        | Required For              | How to Obtain                                      |
+| -------------- | ------------------------- | -------------------------------------------------- |
+| **Supabase**   | Database & Authentication | [supabase.com](https://supabase.com)               |
+| **OpenAI**     | GPT models                | [platform.openai.com](https://platform.openai.com) |
+| **Groq**       | Fast inference models     | [console.groq.com](https://console.groq.com)       |
+| **Google AI**  | Gemini models             | [ai.google.dev](https://ai.google.dev)             |
+| **Mistral**    | Mistral models            | [console.mistral.ai](https://console.mistral.ai)   |
+| **OpenRouter** | Preview generation        | [openrouter.ai](https://openrouter.ai)             |
+| **Tavily**     | Market research           | [tavily.com](https://tavily.com)                   |
+| **Firecrawl**  | Content extraction        | [firecrawl.dev](https://firecrawl.dev)             |
+| **Lovable**    | UI mockup generation      | Contact Lovable for access                         |
 
 ---
 
@@ -112,8 +112,8 @@ pip install -r requirements.txt
 # Set up pre-commit hooks (optional)
 pre-commit install
 
-# Run in development mode
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+# Run in development mode with auto-reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Access the API documentation
 # http://localhost:8000/api/docs (Swagger UI)
@@ -311,6 +311,7 @@ print(f"Generated Files: {result['generated_files']}")
 ### 5. API Usage Examples
 
 #### Authentication
+
 ```bash
 # Register a new user
 curl -X POST "http://localhost:8000/api/user/register" \
@@ -324,6 +325,7 @@ curl -X POST "http://localhost:8000/api/user/login" \
 ```
 
 #### Project Management
+
 ```bash
 # Create a new project
 curl -X POST "http://localhost:8000/api/user/projects" \
@@ -345,11 +347,13 @@ curl -X POST "http://localhost:8000/api/user/projects/{project_id}/generate-brd"
 ### Vercel Deployment
 
 1. **Install Vercel CLI**:
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Configure vercel.json**:
+
    ```json
    {
      "builds": [
@@ -368,6 +372,7 @@ curl -X POST "http://localhost:8000/api/user/projects/{project_id}/generate-brd"
    ```
 
 3. **Set Environment Variables**:
+
    ```bash
    vercel env add SUPABASE_URL
    vercel env add SUPABASE_KEY
