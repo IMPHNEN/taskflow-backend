@@ -11,6 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install system dependencies and Go
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    git \
     build-essential
 
 # Copy requirements file

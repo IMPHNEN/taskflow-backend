@@ -249,7 +249,7 @@ async def generate_project_scope(project_id: str, background_tasks: BackgroundTa
     # Check PRD status - Tasks can only be generated if PRD is completed
     prd_record = supabase.table('prd').select('*').eq('project_id', project_id).maybe_single().execute()
     
-    if not prd_record.data or prd_record.data['status'] != 'completed':
+    if not prd_record or prd_record.data['status'] != 'completed':
         raise HTTPException(status_code=400, detail="PRD must be completed before generating tasks")
     
     # Set task generation status to in_progress in the projects table
