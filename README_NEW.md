@@ -112,8 +112,8 @@ pip install -r requirements.txt
 # Set up pre-commit hooks (optional)
 pre-commit install
 
-# Run in development mode with auto-reload
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Run in development mode
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # Access the API documentation
 # http://localhost:8000/api/docs (Swagger UI)
@@ -356,18 +356,18 @@ curl -X POST "http://localhost:8000/api/user/projects/{project_id}/generate-brd"
 
    ```json
    {
-     "builds": [
-       {
-         "src": "run.py",
-         "use": "@vercel/python"
-       }
-     ],
-     "routes": [
-       {
-         "src": "/(.*)",
-         "dest": "run.py"
-       }
-     ]
+   	"builds": [
+   		{
+   			"src": "run.py",
+   			"use": "@vercel/python"
+   		}
+   	],
+   	"routes": [
+   		{
+   			"src": "/(.*)",
+   			"dest": "run.py"
+   		}
+   	]
    }
    ```
 
