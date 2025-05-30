@@ -5,10 +5,12 @@ from .market_research import MarketResearch
 from .mockup import Mockup
 from .prd import PRD
 from .github_setup import GitHubSetup
+from .feedback import Feedback, FeedbackCreate, FeedbackInDB
  
 __all__ = [
     'User', 'UserCreate', 'UserUpdate', 'UserInDB',
     'Project', 'ProjectCreate', 'ProjectUpdate', 'ProjectInDB',
     'Task', 'TaskCreate', 'TaskUpdate', 'TaskInDB', 'TaskType', 'TaskStatus',
-    'MarketResearch', 'Mockup', 'PRD', 'GitHubSetup', 'ProjectDetail'
+    'MarketResearch', 'Mockup', 'PRD', 'GitHubSetup', 'ProjectDetail',
+    'Feedback', 'FeedbackCreate', 'FeedbackInDB'
 ]
