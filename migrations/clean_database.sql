@@ -6,6 +6,7 @@ DROP TRIGGER IF EXISTS update_market_research_modtime ON market_research;
 DROP TRIGGER IF EXISTS update_mockup_modtime ON mockup;
 DROP TRIGGER IF EXISTS update_prd_modtime ON prd;
 DROP TRIGGER IF EXISTS update_github_setup_modtime ON github_setup;
+DROP TRIGGER IF EXISTS update_feedback_modtime ON feedback;
 DROP TRIGGER IF EXISTS before_task_insert ON tasks;
 DROP TRIGGER IF EXISTS before_task_position_update ON tasks;
 
@@ -14,6 +15,7 @@ DROP FUNCTION IF EXISTS public.handle_new_user();
 DROP FUNCTION IF EXISTS update_updated_at_column();
 DROP FUNCTION IF EXISTS adjust_task_positions();
 DROP FUNCTION IF EXISTS handle_task_position_update();
+DROP FUNCTION IF EXISTS update_feedback_modtime();
 
 -- Drop tables in correct order (respecting foreign key constraints)
 DROP TABLE IF EXISTS activity_logs;
@@ -25,6 +27,7 @@ DROP TABLE IF EXISTS market_research;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS ai.agent_sessions;
 DROP TABLE IF EXISTS ai.user_memories;
 
