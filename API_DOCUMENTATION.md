@@ -69,6 +69,7 @@ Authentication tokens must be included in the `Authorization` header using the `
 | `/api/user/task/{project_id}/{task_id}` | GET    | Get a specific task         | None                                                                                                          | Task object                                  |
 | `/api/user/task/{project_id}/{task_id}` | PATCH  | Update a task               | Task update data                                                                                              | `{ "message": "Task updated successfully" }` |
 | `/api/user/task/{project_id}/{task_id}` | DELETE | Delete a task               | None                                                                                                          | `{ "message": "Task deleted successfully" }` |
+| `/api/user/task/{project_id}/reorder`   | PATCH  | Reorder tasks in a project  | `[{ "task_id": "string", "position": int }]`                                              | `{ "message": "Tasks reordered successfully" }` |
 
 #### Feedback
 
