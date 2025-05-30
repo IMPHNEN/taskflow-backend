@@ -17,3 +17,4 @@ mcp==1.8.0
 mistralai==1.7.0
 pygithub==2.6.1
 patchright==1.50.0
+git+https://github.com/znmn/postgrest-py.git@941332d5a1c65215e2c18a9cf098e0aa95a105c0#egg=postgrest

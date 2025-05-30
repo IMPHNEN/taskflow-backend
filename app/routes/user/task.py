@@ -108,24 +108,3 @@ async def delete_task(project_id: str, task_id: str, user: dict = Depends(requir
     # Delete task
     supabase.table('tasks').delete().eq('id', task_id).execute()
     return {"message": "Task deleted successfully"}
-
-@router.patch("/{project_id}/reorder")
-@handle_exceptions(status_code=500)
-async def reorder_tasks(
-    project_id: str,
-    task_orders: list[dict],
-    user: dict = Depends(require_user)
-):
-    """Reorder tasks in a project"""
-    # Verify project ownership
-    project = supabase.table('projects').select('id').eq('id', project_id).eq('user_id', user['id']).maybe_single().execute()
-    if not project or not project.data:
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    # Update task positions
-    for order in task_orders:
-        supabase.table('tasks').update({
-            'position': order['position']
-        }).eq('id', order['task_id']).execute()
-    
-    return {"message": "Tasks reordered successfully"} 

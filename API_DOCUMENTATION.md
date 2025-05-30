@@ -62,14 +62,13 @@ Authentication tokens must be included in the `Authorization` header using the `
 
 #### Tasks
 
-| Endpoint                                | Method | Description                 | Parameters                                                                                | Response                                        |
-| --------------------------------------- | ------ | --------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `/api/user/task/{project_id}`           | POST   | Create a new task           | `{ "title": "string", "task_type": "string", "story_point": number, "position": number }` | `{ "message": "Task created successfully" }`    |
-| `/api/user/task/{project_id}`           | GET    | List all tasks in a project | Optional: `status` query param                                                            | Array of task objects                           |
-| `/api/user/task/{project_id}/{task_id}` | GET    | Get a specific task         | None                                                                                      | Task object                                     |
-| `/api/user/task/{project_id}/{task_id}` | PATCH  | Update a task               | Task update data                                                                          | `{ "message": "Task updated successfully" }`    |
-| `/api/user/task/{project_id}/{task_id}` | DELETE | Delete a task               | None                                                                                      | `{ "message": "Task deleted successfully" }`    |
-| `/api/user/task/{project_id}/reorder`   | PATCH  | Reorder tasks in a project  | `[{ "task_id": "string", "position": int }]`                                              | `{ "message": "Tasks reordered successfully" }` |
+| Endpoint                                | Method | Description                 | Parameters                                                                                                    | Response                                     |
+| --------------------------------------- | ------ | --------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `/api/user/task/{project_id}`           | POST   | Create a new task           | `{ "title": "string", "task_type": "string", "status": "string", "story_point": number, "position": number }` | `{ "message": "Task created successfully" }` |
+| `/api/user/task/{project_id}`           | GET    | List all tasks in a project | None                                                                                                          | Array of task objects                        |
+| `/api/user/task/{project_id}/{task_id}` | GET    | Get a specific task         | None                                                                                                          | Task object                                  |
+| `/api/user/task/{project_id}/{task_id}` | PATCH  | Update a task               | Task update data                                                                                              | `{ "message": "Task updated successfully" }` |
+| `/api/user/task/{project_id}/{task_id}` | DELETE | Delete a task               | None                                                                                                          | `{ "message": "Task deleted successfully" }` |
 
 #### Feedback
 
