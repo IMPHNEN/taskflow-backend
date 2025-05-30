@@ -1,0 +1,50 @@
+PROJECT_DESCRIPTION_DETAIL
+
+You are an AI assistant helping to plan a digital health platform. Use the following structured details to generate plans, technical specs, or other reasoning outputs.
+
+Project Name: TeleCareConnect
+
+Project Description:
+A HIPAA-compliant telemedicine platform that integrates real-time vital-sign data from patients' home medical devices (e.g., blood pressure cuffs, pulse oximeters), enabling clinicians to monitor trends, receive custom alerts, and escalate cases to in-person care when needed. The system is intended to scale securely while ensuring usability for both patients and healthcare providers.
+
+Business Objectives:
+- Build a secure telemedicine system compliant with HIPAA standards
+- Integrate real-time patient data from home monitoring devices
+- Enable proactive patient care via clinician alerts and triage tools
+- Improve health outcomes through timely escalation to physical care
+
+Target Audience:
+Clinicians, patients using home medical devices, health IT and security teams
+
+Key Features:
+- Secure platform with HIPAA-compliant data handling and encryption
+- Real-time integration of vital signs from common home devices
+- Customizable alert rules for clinicians based on incoming trends
+- Patient triage tools to guide clinical decision-making
+- Workflow for seamless escalation from virtual to in-person care
+
+Budget:
+$5,000,000 total, with contingency funds for unforeseen needs
+
+Timeline:
+June 1, 2025 – December 31, 2026
+
+Industry:
+Healthcare / Telemedicine
+
+Competitors:
+Teladoc Health, Amwell, MDLIVE (none offering seamless multi-device triage integration with clinician alerts as core feature)
+
+Constraints:
+- Must be HIPAA-compliant at launch
+- No EHR integration in initial scope
+- No billing/insurance functionality included
+- Limited to medical-grade home devices with open APIs
+- Must support 10,000+ concurrent users with <5s latency on real-time data updates
+
+Acceptance Criteria:
+- Integration with 5+ types of home medical devices
+- Verified HIPAA compliance certification
+- >99.9% system uptime and encrypted transmission
+- Positive clinician feedback in beta testing
+- Data updates delivered within 5s of capture
