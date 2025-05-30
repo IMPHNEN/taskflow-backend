@@ -177,7 +177,7 @@ class PreviewGeneratorService:
             else:
                 self._context = await pw.chromium.launch_persistent_context(
                     user_data_dir=DATA_DIR,
-                    headless=False,
+                    headless=True,
                     args=BROWSER_ARGS,
                     slow_mo=1000
                 )
