@@ -1,0 +1,1 @@
+A secure, HIPAA-compliant telemedicine platform that goes beyond video visits by integrating real-time vital-sign data from patients' home devices (e.g., blood pressure cuffs, pulse oximeters). Clinicians can set custom alerts, triage based on incoming data trends, and seamlessly escalate to in-person care when needed.
