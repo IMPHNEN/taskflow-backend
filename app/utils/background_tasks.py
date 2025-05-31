@@ -49,6 +49,26 @@ async def generate_prd_background(project_id: str, brd_content: str, project_nam
         # Update the status to 'failed'
         supabase.table('prd').update({'status': 'failed'}).eq('project_id', project_id).execute()
 
+# Generate BRD than PRD
+async def generate_brd_and_prd_background(project_id: str, project_data: dict):
+    """Background task to generate BRD and then PRD"""
+    # Generate BRD first
+    await generate_brd_background(project_id, project_data)
+    
+    # Get the BRD result to check if we should proceed with PRD
+    brd_result = supabase.table('brd').select('*').eq('project_id', project_id).maybe_single().execute()
+    
+    # Only generate PRD if BRD completed successfully
+    if brd_result and brd_result.data['status'] == 'completed':
+        await generate_prd_background(
+            project_id,
+            brd_result.data['brd_markdown'],
+            project_data['name']
+        )
+    else:
+        supabase.table('prd').update({'status': 'failed'}).eq('project_id', project_id).execute()
+
+
 async def generate_tasks_background(project_id: str, prd_content: str):
     """Background task to generate tasks"""
     try:

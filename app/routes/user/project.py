@@ -8,6 +8,7 @@ from ...utils.github_utils import get_github_token, validate_github_token
 from ...utils.background_tasks import (
     generate_brd_background,
     generate_prd_background,
+    generate_brd_and_prd_background,
     generate_tasks_background,
     validate_market_background,
     setup_github_repository_background,
@@ -21,7 +22,7 @@ router = APIRouter(
 
 @router.post("")
 @handle_exceptions(status_code=400)
-async def create_project(project: ProjectCreate, user: dict = Depends(require_user)):
+async def create_project(project: ProjectCreate, background_tasks: BackgroundTasks, user: dict = Depends(require_user)):
     """Create a new project"""
     # Convert project model to dict
     project_dict = project.model_dump()
@@ -43,6 +44,32 @@ async def create_project(project: ProjectCreate, user: dict = Depends(require_us
         **project_dict,
         'user_id': user['id']
     }).execute()
+
+    # Get the created project's Data from the response
+    project_datas =  project_data.data[0]
+    project_id = project_datas['id']
+
+
+    # Initialize background tasks for BRD generation and PRD generation
+    # Initialize BRD record
+    supabase.table('brd').insert({
+        'project_id': project_id,
+        'status': 'in_progress'
+    }).execute()
+
+    # Initialize PRD record 
+    supabase.table('prd').insert({
+        'project_id': project_id,
+        'status': 'in_progress'
+    }).execute()
+
+    # Add background tasks
+    background_tasks.add_task(
+        generate_brd_and_prd_background,
+        project_id,
+        project_data.data[0]
+    )
+
     
     return {"message": "Project created successfully"}
 
