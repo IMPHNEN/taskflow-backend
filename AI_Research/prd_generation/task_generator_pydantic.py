@@ -137,7 +137,6 @@ def extract_json(content: str) -> dict:
         logger.error(f"❌ Failed to parse extracted JSON: {e}\nRaw string:\n{json_str}")
         raise ValueError(f"Invalid JSON after extraction: {e}\nRaw JSON string:\n{json_str}")
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyAmulVV5yjt6bCz9tKqPmceG8uq06bbfHg"
 
 # ===== MAIN FUNCTION =====
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, max=10))
@@ -244,14 +243,6 @@ Guidelines:
     except Exception as e:
         logger.error(f"❌ Validation error: {e}\nRaw content:\n{content}")
         raise
-
-
-# ===== CLI ENTRY POINT =====
-# def main():
-#     print("\n🧠 Generating task hierarchy from PRD...")
-#     task_hierarchy = generate_task_hierarchy("prd.md")
-#     print("🎉 Task hierarchy generation completed successfully.")
-#     print("📁 Saved to: task_hierarchy.json")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate task hierarchy from PRD.")
