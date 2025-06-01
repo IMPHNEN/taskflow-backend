@@ -347,47 +347,6 @@ curl -X POST "http://localhost:8000/api/user/projects/{project_id}/generate-brd"
 
 ## 🚀 Deployment
 
-### Vercel Deployment
-
-1. **Install Vercel CLI**:
-
-   ```bash
-   npm install -g vercel
-   ```
-
-2. **Configure vercel.json**:
-
-   ```json
-   {
-     "builds": [
-       {
-         "src": "run.py",
-         "use": "@vercel/python"
-       }
-     ],
-     "routes": [
-       {
-         "src": "/(.*)",
-         "dest": "run.py"
-       }
-     ]
-   }
-   ```
-
-3. **Set Environment Variables**:
-
-   ```bash
-   vercel env add SUPABASE_URL
-   vercel env add SUPABASE_KEY
-   vercel env add OPENAI_API_KEY
-   # Add all required environment variables
-   ```
-
-4. **Deploy**:
-   ```bash
-   vercel --prod
-   ```
-
 ### Docker Production Deployment
 
 ```bash
@@ -419,8 +378,8 @@ DEFAULT_MODEL_ID=gpt-4o-mini
 ENABLE_DEBUG_MODE=False
 ENABLE_SHOW_TOOL_CALLS=False
 
-# Performance optimization
-RESULTS_DIR=/app/results
+# etc...
+# see .env.example for more details
 ```
 
 ---
